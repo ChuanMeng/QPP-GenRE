@@ -1,0 +1,9 @@
+bitsandbytes==0.41.1
+numpy==1.23.5
+peft==0.6.0.dev0
+pyserini==0.22.0
+pytrec_eval==0.5
+scipy==1.11.3
+torch==2.0.1
+tqdm==4.66.1
+transformers==4.35.0.dev0
