@@ -7,14 +7,13 @@ This repository contains the following 5 components:
 - 4. In-context learning using LLaMA
 - 5. Evaluation
 
-
 ## 1. Installation
 ```bash
 pip install -r requirements.txt
 ```
 
 ```bash
-export LLAMA_7B_PATH={your local path to LLaMA-7B}
+export LLAMA_7B_PATH={your path to LLaMA-7B}
 ```
 
 ## 2. Inference using fine-tuned LLaMA
