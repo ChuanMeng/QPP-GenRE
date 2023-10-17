@@ -41,8 +41,8 @@ Please download `checkpoint.zip` from [here](https://drive.google.com/file/d/1dG
 
 ## 2. Inference using fine-tuned LLaMA
 The part shows how to directly use our released checkpoints of finetuned LLaMA-7B to predict the performance of BM25 and ANCE on TREC-DL 19, 20, 21 and 22 datasets.
-Please run `judge_relevance.py` and `predict_measures.py` to finish one prediction for one ranker on one dataset.
-Specifically, `judge_relevance.py` aims to automatically generate relevance judgments for a ranked list; the generated relevance judgments are saved to `./output/`. 
+Please run `judge_relevance.py` and `predict_measures.py` sequentially to finish one prediction for one ranker on one dataset.
+Specifically, `judge_relevance.py` aims to automatically generate relevance judgments for a ranked list returned by BM25 or ANCE; the generated relevance judgments are saved to `./output/`. 
 `predict_measures.py` is used to compute different IR evaluation measures, such as RR@10 and nDCG@10; the computed values of an IR evaluation metric are regarded as predicted QPP scores; predicted QPP scores for one dataset will be saved to a folder that corresponds to the dataset, e.g., QPP scores for BM25 or ANCE on TREC-DL 19 will be saved to `./output/dl-19-passage`.
   
 
@@ -166,6 +166,8 @@ python -u predict_measures.py \
 ```
 
 ## 3. Fine-tuning LLaMA
+Run the following command to fine-tune the original LLaMA-7B on the task of judging the relevance of a passage to a given query, on the development set of MS MARCO V1.
+The checkpoints will be saved to `./checkpoint/`.
 ```bash
 python -u judge_relevance.py \
 --model_name_or_path ${LLAMA_7B_PATH} \
@@ -181,6 +183,8 @@ python -u judge_relevance.py \
 ```
 
 ## 4. In-context learning using LLaMA
+In the setting of in-context learning, we randomly sample several human-labeled demonstration examples (one demonstration example is in the format of "<query, passage, relevant/irrelevant>") from the development set of MS MARCO V1 (the same set used for fine-tuning LLaMA in the previous part), and insert these sampled examples into the input of LLaMA-7B with original weights. 
+We randomly sample 4 demonstration examples, where two examples are labeled as relevant while the other two examples are labeled as irrelevant; our preliminary experiments show that this setting works best and so we stick with it.
 
 ### Predicting the performance of BM25 on TREC-DL 19 
 ```bash
