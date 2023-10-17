@@ -16,9 +16,9 @@ This repository is structured into five distinct parts:
 pip install -r requirements.txt
 ```
 ### Download datasets
-First download `dataset.zip` (containing queries, run files, qrels files and so on) from [here](https://drive.google.com/file/d/1d_bEofABPmnQKdHk-fdYT02tyzB4VBmI/view?usp=share_link), and then unzip it in the current directory.
+Please first download `dataset.zip` (containing queries, run files, qrels files and files containing the actual retrieval quality of queries) from [here](https://drive.google.com/file/d/1d_bEofABPmnQKdHk-fdYT02tyzB4VBmI/view?usp=share_link), and then unzip it in the current directory.
 
-Then, download MS MARCO V1 and V2 passage ranking collections from [Pyserini](https://github.com/castorini/pyserini):
+Then, please download MS MARCO V1 and V2 passage ranking collections from [Pyserini](https://github.com/castorini/pyserini):
 ```bash
 wget -P ./datasets/msmarco-v1-passage/ https://rgw.cs.uwaterloo.ca/pyserini/indexes/lucene-index.msmarco-v1-passage-full.20221004.252b5e.tar.gz --no-check-certificate
 tar -zxvf  ./datasets/msmarco-v1-passage/lucene-index.msmarco-v1-passage-full.20221004.252b5e.tar.gz -C ./datasets/msmarco-v1-passage/
@@ -28,9 +28,9 @@ tar -zxvf  ./datasets/msmarco-v2-passage/lucene-index.msmarco-v2-passage-full.20
 ```
 
 ### Download the original weights of LLaMA-7B
-Please refer to the LLaMA [repository](https://github.com/facebookresearch/llama/tree/llama_v1) to fetch the weights of LLaMA-7B.
-And follow the instructions from [here](https://huggingface.co/docs/transformers/main/model_doc/llama) to convert the original weights for the LLaMA-7B model to the Hugging Face Transformers format. 
-Next, set your local path to the weights of LLaMA-7B (Hugging Face Transformers format) as a variable.
+Please refer to the LLaMA [repository](https://github.com/facebookresearch/llama/tree/llama_v1) to fetch the original weights of LLaMA-7B.
+And then, please follow the instructions from [here](https://huggingface.co/docs/transformers/main/model_doc/llama) to convert the original weights for the LLaMA-7B model to the Hugging Face Transformers format. 
+Next, set your local path to the weights of LLaMA-7B (Hugging Face Transformers format) as an environment variable, which will be used in the following process.
 ```bash
 export LLAMA_7B_PATH={your path to the weights of LLaMA-7B (Hugging Face Transformers format)}
 ```
@@ -43,7 +43,7 @@ Please download `checkpoint.zip` from [here](https://drive.google.com/file/d/1dG
 The part shows how to directly use our released checkpoints of finetuned LLaMA-7B to predict the performance of BM25 and ANCE on TREC-DL 19, 20, 21 and 22 datasets.
 Please run `judge_relevance.py` and `predict_measures.py` sequentially to finish one prediction for one ranker on one dataset.
 Specifically, `judge_relevance.py` aims to automatically generate relevance judgments for a ranked list returned by BM25 or ANCE; the generated relevance judgments are saved to `./output/`. 
-`predict_measures.py` is used to compute different IR evaluation measures, such as RR@10 and nDCG@10; the computed values of an IR evaluation metric are regarded as predicted QPP scores; predicted QPP scores for one dataset will be saved to a folder that corresponds to the dataset, e.g., QPP scores for BM25 or ANCE on TREC-DL 19 will be saved to `./output/dl-19-passage`.
+`predict_measures.py` is used to compute different IR evaluation measures, such as RR@10 and nDCG@10, based on the generated relevance judgments (pseudo labels); the computed values of an IR evaluation metric are regarded as predicted QPP scores that are expected to approximate the actual values of the IR evaluation metric; predicted QPP scores for a dataset will be saved to a folder that corresponds to the dataset, e.g., QPP scores for BM25 or ANCE on TREC-DL 19 will be saved to `./output/dl-19-passage`.
   
 
 ### Predicting the performance of BM25 on TREC-DL 19 
@@ -167,7 +167,8 @@ python -u predict_measures.py \
 
 ## 3. Fine-tuning LLaMA
 Run the following command to fine-tune the original LLaMA-7B on the task of judging the relevance of a passage to a given query, on the development set of MS MARCO V1.
-The checkpoints will be saved to `./checkpoint/`.
+For each query in the development set of MS MARCO V1, we use the relevant passages shown in the qrels file, while we randomly sample a negative passage from the ranked list (1000 items) returned by BM25. 
+The checkpoints will be saved to `./checkpoint/` for each epoch.
 ```bash
 python -u judge_relevance.py \
 --model_name_or_path ${LLAMA_7B_PATH} \
