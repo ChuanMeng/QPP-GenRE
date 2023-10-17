@@ -27,7 +27,7 @@ wget -P ./datasets/msmarco-v2-passage/ https://rgw.cs.uwaterloo.ca/pyserini/inde
 tar -zxvf  ./datasets/msmarco-v2-passage/lucene-index.msmarco-v2-passage-full.20220808.4d6d2a.tar.gz -C ./datasets/msmarco-v2-passage/
 ```
 
-### Download the weights of LLaMA-7B
+### Download the original weights of LLaMA-7B
 Please refer to the LLaMA [repository](https://github.com/facebookresearch/llama/tree/llama_v1) to fetch the weights of LLaMA-7B.
 And follow the instructions from [here](https://huggingface.co/docs/transformers/main/model_doc/llama) to convert the original weights for the LLaMA-7B model to the Hugging Face Transformers format. 
 Next, set your local path to the weights of LLaMA-7B (Hugging Face Transformers format) as a variable.
@@ -63,7 +63,7 @@ python -u judge_relevance.py \
 python -u predict_measures.py \
 --run_path ./datasets/msmarco-v1-passage/runs/dl-19-passage.run-original-bm25-1000.txt \
 --qrels_path  ./output/dl-19-passage.original-bm25-1000.original-llama-1-7b-hf-ckpt-msmarco-v1-passage-dev-small.original-bm25-1000.original-llama-1-7b-hf-neg1-checkpoint-2790.k1000 \
---output_path ./output/dl-19-passage \
+--output_path ./output/dl-19-passage
 ```
 
 ### Predicting the performance of BM25 on TREC-DL 20 
@@ -83,7 +83,7 @@ python -u judge_relevance.py \
 python -u predict_measures.py \
 --run_path ./datasets/msmarco-v1-passage/runs/dl-20-passage.run-original-bm25-1000.txt \
 --qrels_path  ./output/dl-20-passage.original-bm25-1000.original-llama-1-7b-hf-ckpt-msmarco-v1-passage-dev-small.original-bm25-1000.original-llama-1-7b-hf-neg1-checkpoint-2790.k1000 \
---output_path ./output/dl-20-passage \
+--output_path ./output/dl-20-passage
 ```
 
 ### Predicting the performance of BM25 on TREC-DL 21 
@@ -103,7 +103,7 @@ python judge_relevance.py \
 python -u predict_measures.py \
 --run_path ./datasets/msmarco-v2-passage/runs/dl-21-passage.run-original-bm25-1000.txt \
 --qrels_path  ./output/dl-21-passage.original-bm25-1000.original-llama-1-7b-hf-ckpt-msmarco-v1-passage-dev-small.original-bm25-1000.original-llama-1-7b-hf-neg1-checkpoint-1860.k1000 \
---output_path ./output/dl-21-passage \
+--output_path ./output/dl-21-passage 
 ```
 
 ### Predicting the performance of BM25 on TREC-DL 22 
@@ -123,7 +123,7 @@ python -u judge_relevance.py \
 python -u predict_measures.py \
 --run_path ./datasets/msmarco-v2-passage/runs/dl-22-passage.run-original-bm25-1000.txt \
 --qrels_path  ./output/dl-22-passage.original-bm25-1000.original-llama-1-7b-hf-ckpt-msmarco-v1-passage-dev-small.original-bm25-1000.original-llama-1-7b-hf-neg1-checkpoint-1860.k1000 \
---output_path ./output/dl-22-passage \
+--output_path ./output/dl-22-passage
 ```
 
 ### Predicting the performance of ANCE on TREC-DL 19 
@@ -143,7 +143,7 @@ python -u judge_relevance.py \
 python -u predict_measures.py \
 --run_path ./datasets/msmarco-v1-passage/runs/dl-19-passage.run-original-ance-msmarco-v1-passage-1000.txt \
 --qrels_path  ./output/dl-19-passage.original-ance-msmarco-v1-passage-1000.original-llama-1-7b-hf-ckpt-msmarco-v1-passage-dev-small.original-bm25-1000.original-llama-1-7b-hf-neg1-checkpoint-2790.k1000 \
---output_path ./output/dl-19-passage \
+--output_path ./output/dl-19-passage
 ```
 ### Predicting the performance of ANCE on TREC-DL 20 
 ```bash
@@ -162,7 +162,7 @@ python -u judge_relevance.py \
 python -u predict_measures.py \
 --run_path ./datasets/msmarco-v1-passage/runs/dl-20-passage.run-original-ance-msmarco-v1-passage-1000.txt \
 --qrels_path  ./output/dl-20-passage.original-ance-msmarco-v1-passage-1000.original-llama-1-7b-hf-ckpt-msmarco-v1-passage-dev-small.original-bm25-1000.original-llama-1-7b-hf-neg1-checkpoint-2790.k1000 \
---output_path ./output/dl-20-passage \
+--output_path ./output/dl-20-passage
 ```
 
 ## 3. Fine-tuning LLaMA
@@ -207,7 +207,7 @@ python -u judge_relevance.py \
 python -u predict_measures.py \
 --run_path ./datasets/msmarco-v1-passage/runs/dl-19-passage.run-original-bm25-1000.txt \
 --qrels_path  ./output/dl-19-passage.original-bm25-1000.original-llama-1-7b-hf-icl-msmarco-v1-passage-dev-small.original-bm25-1000-demon2 \
---output_path ./output/dl-19-passage \
+--output_path ./output/dl-19-passage
 ```
 
 ### Predicting the performance of BM25 on TREC-DL 20 
@@ -231,7 +231,7 @@ python -u judge_relevance.py \
 python -u predict_measures.py \
 --run_path ./datasets/msmarco-v1-passage/runs/dl-20-passage.run-original-bm25-1000.txt \
 --qrels_path  ./output/dl-20-passage.original-bm25-1000.original-llama-1-7b-hf-icl-msmarco-v1-passage-dev-small.original-bm25-1000-demon2 \
---output_path ./output/dl-20-passage \ 
+--output_path ./output/dl-20-passage
 ```
 
 ### Predicting the performance of BM25 on TREC-DL 21 
@@ -255,7 +255,7 @@ python judge_relevance.py \
 python -u predict_measures.py \
 --run_path ./datasets/msmarco-v2-passage/runs/dl-21-passage.run-original-bm25-1000.txt \
 --qrels_path  ./output/dl-21-passage.original-bm25-1000.original-llama-1-7b-hf-icl-msmarco-v1-passage-dev-small.original-bm25-1000-demon2 \
---output_path ./output/dl-21-passage \
+--output_path ./output/dl-21-passage
 ```
 
 ### Predicting the performance of BM25 on TREC-DL 22 
@@ -279,7 +279,7 @@ python -u judge_relevance.py \
 python -u predict_measures.py \
 --run_path ./datasets/msmarco-v2-passage/runs/dl-22-passage.run-original-bm25-1000.txt \
 --qrels_path  ./output/dl-22-passage.original-bm25-1000.original-llama-1-7b-hf-icl-msmarco-v1-passage-dev-small.original-bm25-1000-demon2 \
---output_path ./output/dl-22-passage \
+--output_path ./output/dl-22-passage
 ```
 
 ### Predicting the performance of ANCE on TREC-DL 19 
@@ -303,7 +303,7 @@ python -u judge_relevance.py \
 python -u predict_measures.py \
 --run_path ./datasets/msmarco-v1-passage/runs/dl-19-passage.run-original-ance-msmarco-v1-passage-1000.txt \
 --qrels_path  ./output/dl-19-passage.original-ance-msmarco-v1-passage-1000.original-llama-1-7b-hf-icl-msmarco-v1-passage-dev-small.original-bm25-1000-demon2 \
---output_path ./output/dl-19-passage \
+--output_path ./output/dl-19-passage
 ```
 ### Predicting the performance of ANCE on TREC-DL 20 
 ```bash
@@ -326,12 +326,16 @@ python -u judge_relevance.py \
 python -u predict_measures.py \
 --run_path ./datasets/msmarco-v1-passage/runs/dl-20-passage.run-original-ance-msmarco-v1-passage-1000.txt \
 --qrels_path  ./output/dl-20-passage.original-ance-msmarco-v1-passage-1000.original-llama-1-7b-hf-icl-msmarco-v1-passage-dev-small.original-bm25-1000-demon2 \
---output_path ./output/dl-20-passage \
+--output_path ./output/dl-20-passage
 ```
 
 ## 5. Evaluation
 
 We provide detailed commands to evaluate QPP effectiveness of QPP-GenRE using either `finetuned LLaMA-7B` or `in-context learning-based LLaMA-7B`, for predicting the performance of BM25 or ANCE in terms of RR@10 or nDCG@10.
+Specifically, QPP effectiveness is measured by Pearson and Kendall correlation coefficients between the actual performance of queries and the predicted performance of the queries.
+Note that TREC-DL 19, 20, 21 and 22 provide relevance judgments in multi-graded relevance scales per query, while LLaMA-7B in QPP-GenRE can only generate binary relevance judgments for each query.
+For RR@10, we use relevance scale ≥ 2 as positive to compute the actual values of RR@10; for nDCG@10, the actual values of nDCG@10 are calculated by human-labeled relevance judgments in multi-graded relevance scales, while the values of nDCG@10 predicted by QPP-GenRE are calculated by binary relevance judgments automatically generated by LLaMA-7B.
+
 ### Evaluate QPP effectiveness of QPP-GenRE (finetuned LLaMA-7B) for predicting the performance of BM25 in terms of RR@10  
 ```bash
 python -u evaluation.py \
@@ -417,13 +421,13 @@ python -u evaluation.py \
 --target_metric mrr@10 
 
 python -u evaluation.py \
---predicted_path ./output/dl-20-passage/dl-21-passage.original-bm25-1000.original-llama-1-7b-hf-icl-msmarco-v1-passage-dev-small.original-bm25-1000-demon2-n1000-mrr@10 \
+--predicted_path ./output/dl-21-passage/dl-21-passage.original-bm25-1000.original-llama-1-7b-hf-icl-msmarco-v1-passage-dev-small.original-bm25-1000-demon2-n1000-mrr@10 \
 --actual_path ./datasets/msmarco-v2-passage/ap/dl-21-passage.ap-original-bm25-1000.json \
 --target_metric mrr@10 
 
 python -u evaluation.py \
---predicted_path ./output/dl-20-passage/dl-21-passage.original-bm25-1000.original-llama-1-7b-hf-icl-msmarco-v1-passage-dev-small.original-bm25-1000-demon2-n1000-mrr@10 \
---actual_path ./datasets/msmarco-v2-passage/ap/dl-21-passage.ap-original-bm25-1000.json \
+--predicted_path ./output/dl-22-passage/dl-22-passage.original-bm25-1000.original-llama-1-7b-hf-icl-msmarco-v1-passage-dev-small.original-bm25-1000-demon2-n1000-mrr@10 \
+--actual_path ./datasets/msmarco-v2-passage/ap/dl-22-passage.ap-original-bm25-1000.json \
 --target_metric mrr@10 
 ```
 ### Evaluate QPP effectiveness of QPP-GenRE (in-context learning-based LLaMA-7B) for predicting the performance of ANCE in terms of RR@10 
@@ -452,13 +456,13 @@ python -u evaluation.py \
 --target_metric ndcg@10
 
 python -u evaluation.py \
---predicted_path ./output/dl-20-passage/dl-21-passage.original-bm25-1000.original-llama-1-7b-hf-icl-msmarco-v1-passage-dev-small.original-bm25-1000-demon2-n1000-ndcg@10 \
+--predicted_path ./output/dl-21-passage/dl-21-passage.original-bm25-1000.original-llama-1-7b-hf-icl-msmarco-v1-passage-dev-small.original-bm25-1000-demon2-n1000-ndcg@10 \
 --actual_path ./datasets/msmarco-v2-passage/ap/dl-21-passage.ap-original-bm25-1000.json \
 --target_metric ndcg@10 
 
 python -u evaluation.py \
---predicted_path ./output/dl-20-passage/dl-21-passage.original-bm25-1000.original-llama-1-7b-hf-icl-msmarco-v1-passage-dev-small.original-bm25-1000-demon2-n1000-ndcg@10 \
---actual_path ./datasets/msmarco-v2-passage/ap/dl-21-passage.ap-original-bm25-1000.json \
+--predicted_path ./output/dl-22-passage/dl-22-passage.original-bm25-1000.original-llama-1-7b-hf-icl-msmarco-v1-passage-dev-small.original-bm25-1000-demon2-n1000-ndcg@10 \
+--actual_path ./datasets/msmarco-v2-passage/ap/dl-22-passage.ap-original-bm25-1000.json \
 --target_metric ndcg@10 
 ```
 
