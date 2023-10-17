@@ -184,7 +184,7 @@ python -u judge_relevance.py \
 
 ## 4. In-context learning using LLaMA
 In the setting of in-context learning, we randomly sample several human-labeled demonstration examples (each demonstration example is in the format of "<query, passage, relevant/irrelevant>") from the development set of MS MARCO V1 (the same set used for fine-tuning LLaMA in the previous part), and insert these sampled examples into the input of LLaMA-7B with original weights. 
-We randomly sample 4 demonstration examples, where two examples are labeled as relevant while the other two examples are labeled as irrelevant; our preliminary experiments show that this setting works best and so we stick with it.
+We randomly sample four demonstration examples, where two examples are labeled as relevant while the other two examples are labeled as irrelevant; our preliminary experiments show that this setting works best and so we stick with it.
 
 ### Predicting the performance of BM25 on TREC-DL 19 
 ```bash
@@ -331,7 +331,7 @@ python -u predict_measures.py \
 
 ## 5. Evaluation
 
-We provide detailed commands to evaluate QPP effectiveness of QPP-GenRE using either finetuned LLaMA-7B or in-context learning-based LLaMA-7B, for predicting the performance of BM25 or ANCE in terms of RR@10 or nDCG@10.
+We provide detailed commands to evaluate QPP effectiveness of QPP-GenRE using either `finetuned LLaMA-7B` or `in-context learning-based LLaMA-7B`, for predicting the performance of BM25 or ANCE in terms of RR@10 or nDCG@10.
 ### Evaluate QPP effectiveness of QPP-GenRE (finetuned LLaMA-7B) for predicting the performance of BM25 in terms of RR@10  
 ```bash
 python -u evaluation.py \
@@ -391,7 +391,7 @@ python -u evaluation.py \
 --target_metric ndcg@10 
 ```
 
-### Evaluate QPP effectiveness of QPP-GenRE (finetuned LLaMA-7B)  for predicting the performance of ANCE in terms of nDCG@10
+### Evaluate QPP effectiveness of QPP-GenRE (finetuned LLaMA-7B) for predicting the performance of ANCE in terms of nDCG@10
 ```bash
 python -u evaluation.py \
 --predicted_path ./output/dl-19-passage/dl-19-passage.original-ance-msmarco-v1-passage-1000.original-llama-1-7b-hf-ckpt-msmarco-v1-passage-dev-small.original-bm25-1000.original-llama-1-7b-hf-neg1-checkpoint-2790.k1000-n1000-ndcg@10 \
