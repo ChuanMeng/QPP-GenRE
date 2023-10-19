@@ -40,7 +40,7 @@ We release ***the checkpoints of our fine-tuned LLaMA-7B*** for the reproducibil
 Please download `checkpoint.zip` from [here](https://drive.google.com/file/d/1dGeJS0lJxMtZwGKrZaTRefe4TImxEQ1n/view?usp=share_link), and then unzip it in the current directory.
 
 > [!NOTE]
-> We first quantize LLaMA-7B to 4-bit for either inference or fine-tuning in this paper; we use an NVIDIA A100 Tensor Core GPU (40GB) to conduct all experiments in our paper.
+> We leverage 4-bit quantized LLaMA-7B for either inference or fine-tuning in this paper; we use an NVIDIA A100 Tensor Core GPU (40GB) to conduct all experiments in our paper.
 
 ## 🚀 2. Inference using fine-tuned LLaMA
 The part shows how to directly use our released checkpoints of fine-tuned LLaMA-7B to predict the performance of BM25 and ANCE on TREC-DL 19, 20, 21 and 22 datasets.
