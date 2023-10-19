@@ -9,7 +9,7 @@ This repository is structured into five distinct parts:
 4. In-context learning using LLaMA
 5. Evaluation
 
-## 1. Installation
+## ⚙️ 1. Installation
 
 ### Install dependencies
 ```bash
@@ -39,7 +39,7 @@ export LLAMA_7B_PATH={your path to the weights of LLaMA-7B (Hugging Face Transfo
 We release ***the checkpoints of our finetuned LLaMA-7B*** for the reproducibility of the results reported in the paper.
 Please download `checkpoint.zip` from [here](https://drive.google.com/file/d/1dGeJS0lJxMtZwGKrZaTRefe4TImxEQ1n/view?usp=share_link), and then unzip it in the current directory.
 
-## 2. Inference using fine-tuned LLaMA
+## 🚀 2. Inference using fine-tuned LLaMA
 The part shows how to directly use our released checkpoints of finetuned LLaMA-7B to predict the performance of BM25 and ANCE on TREC-DL 19, 20, 21 and 22 datasets.
 Please run `judge_relevance.py` and `predict_measures.py` sequentially to finish one prediction for one ranker on one dataset.
 Specifically, `judge_relevance.py` aims to automatically generate relevance judgments for a ranked list returned by BM25 or ANCE; the generated relevance judgments are saved to `./output/`. 
@@ -165,7 +165,7 @@ python -u predict_measures.py \
 --output_path ./output/dl-20-passage
 ```
 
-## 3. Fine-tuning LLaMA
+## 🛠️ 3. Fine-tuning LLaMA
 Run the following command to fine-tune the original LLaMA-7B on the task of judging the relevance of a passage to a given query, on the development set of MS MARCO V1.
 For each query in the development set of MS MARCO V1, we use the relevant passages shown in the qrels file, while we randomly sample a negative passage from the ranked list (1000 items) returned by BM25. 
 The checkpoints will be saved to `./checkpoint/` for each epoch.
@@ -183,7 +183,7 @@ python -u judge_relevance.py \
 --num_negs 1 
 ```
 
-## 4. In-context learning using LLaMA
+## 🛞 4. In-context learning using LLaMA
 In the setting of in-context learning, we freeze the parameters of LLaMA.
 We randomly sample several human-labeled demonstration examples (each demonstration example is in the format of "<query, passage, relevant/irrelevant>") from the development set of MS MARCO V1 (the same set used for fine-tuning LLaMA in the previous part), and insert these sampled demonstration examples into the input of LLaMA-7B with original weights. 
 We randomly sample four demonstration examples, where two examples have passages that are labeled as relevant (<query, passage, relevant>) while the other two examples have irrelevant passages (<query, passage, irrelevant>); our preliminary experiments show that four demonstration examples work best and so we stick with this setting.
@@ -331,7 +331,7 @@ python -u predict_measures.py \
 --output_path ./output/dl-20-passage
 ```
 
-## 5. Evaluation
+## 💻 5. Evaluation
 We provide detailed commands to evaluate QPP effectiveness of QPP-GenRE using either `finetuned LLaMA-7B` or `in-context learning-based LLaMA-7B`, for predicting the performance of BM25 or ANCE in terms of RR@10 or nDCG@10.
 Specifically, QPP effectiveness is measured by Pearson and Kendall correlation coefficients between the actual performance of a ranker for a set of queries and the predicted performance of the ranker for the set of queries.
 
