@@ -39,8 +39,8 @@ export LLAMA_7B_PATH={your path to the weights of LLaMA-7B (Hugging Face Transfo
 We release ***the checkpoints of our finetuned LLaMA-7B*** for the reproducibility of the results reported in the paper.
 Please download `checkpoint.zip` from [here](https://drive.google.com/file/d/1dGeJS0lJxMtZwGKrZaTRefe4TImxEQ1n/view?usp=share_link), and then unzip it in the current directory.
 
-> [!NOTE]
-> We use an NVIDIA A100 Tensor Core GPU (40GB) to conduct all experiments (either training or inference) in our paper.
+> [NOTE]
+> We quantize LLaMA-7B to 4-bit for either inference or fine-tuning; we use an NVIDIA A100 Tensor Core GPU (40GB) to conduct all experiments in our paper.
 
 ## 🚀 2. Inference using fine-tuned LLaMA
 The part shows how to directly use our released checkpoints of finetuned LLaMA-7B to predict the performance of BM25 and ANCE on TREC-DL 19, 20, 21 and 22 datasets.
