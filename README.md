@@ -8,6 +8,7 @@ This repository is structured into five distinct parts:
 3. Fine-tuning LLaMA
 4. In-context learning using LLaMA
 5. Evaluation
+6. The results of scaled Mean Absolute Ranking Error (sMARE)
 
 ## ⚙️ 1. Installation
 
@@ -484,3 +485,230 @@ python -u evaluation.py \
 --actual_path ./datasets/msmarco-v1-passage/ap/dl-20-passage.ap-original-ance-msmarco-v1-passage-1000.json \
 --target_metric ndcg@10
 ```
+
+## 6.The results of scaled Mean Absolute Ranking Error (sMARE)
+
+We calculate sMARE values for our method and all baselines; we use the [code](https://github.com/Zendelo/QPP-EnhancedEval/blob/e35aaca0a4ab1634c99e2eb73aff51263bbb7c4e/code/python/qppMeasures/sARE.py#L9) released by the authors of sMARE.
+
+The following tables show that our method obtains the lowest sMARE values (the lower the value is, the better the QPP effectiveness is) on each dataset for predicting the performance of either BM25 or ANCE in terms of RR@10 and nDCG@10.
+
+Table: Predicting the performance of BM25 in terms of RR@10 on TREC-DL 19.
+| Method      | sMARE     |
+|---|---|
+| Clarity         |  0.352    |
+| WIG             |  0.291    |
+| NQC             |  0.313    | 
+| 𝜎𝑚𝑎𝑥            |  0.296    | 
+| n(𝜎𝑥%)          |  0.286    | 
+| SMV             |  0.313    |
+|UEF(NQC)         |  0.290    | 
+|RLS(NQC)         |  0.318    |  
+| QPP-PRP         |  0.297    |
+| NQAQPP          |  0.315    |
+| BERTQPP         |  0.318    | 
+| qppBERT-PL      |  0.275    | 
+| M-QPPF          |  0.283    | 
+| QPP-GenRE (ours)| **0.196** |
+
+Table: Predicting the performance of BM25 in terms of RR@10 on TREC-DL 20.
+| Method      | sMARE     |
+|---|---|
+| Clarity         |  0.320    |
+| WIG             |  0.245   |
+| NQC             |  0.249    | 
+| 𝜎𝑚𝑎𝑥            |  0.255     | 
+| n(𝜎𝑥%)          |  0.279     | 
+| SMV             |  0.251     |  
+|UEF(NQC)         |  0.261     | 
+|RLS(NQC)          | 0.294     | 
+| QPP-PRP         |  0.287    |
+| NQAQPP         |   0.315     |
+| BERTQPP         |  0.287     | 
+| qppBERT-PL      |  0.302     | 
+| M-QPPF          |  0.250     | 
+| QPP-GenRE (ours)| **0.157** |
+
+Table: Predicting the performance of BM25 in terms of RR@10 on TREC-DL 21.
+| Method      | sMARE     |
+|---|---|
+| Clarity          | 0.285    |
+| WIG             |  0.276    |
+| NQC             |  0.276    | 
+| 𝜎𝑚𝑎𝑥            |  0.286    | 
+| n(𝜎𝑥%)          |  0.288    | 
+| SMV             |  0.273    | 
+|UEF(NQC)         |  0.315    | 
+|RLS(NQC)          | 0.272    | 
+| QPP-PRP        |   0.311    |
+| NQAQPP         |   0.285    | 
+| BERTQPP         |  0.305    | 
+| qppBERT-PL      |  0.269    | 
+| M-QPPF          |  0.267    | 
+| QPP-GenRE (ours)| **0.237** |
+
+Table: Predicting the performance of BM25 in terms of RR@10 on TREC-DL 22.
+| Method      | sMARE     |
+|---|---|
+ Clarity         |  0.317     |
+| WIG             |  0.315     |
+| NQC             |  0.330     | 
+| 𝜎𝑚𝑎𝑥            |  0.322     | 
+| n(𝜎𝑥%)          |  0.309    | 
+| SMV             |  0.322    | 
+|UEF(NQC)         |  0.325    | 
+|RLS(NQC)          | 0.316    | 
+| QPP-PRP         |  0.316    |
+| NQAQPP         |   0.280    | 
+| BERTQPP         |  0.306    | 
+| qppBERT-PL      |  0.295     | 
+| M-QPPF          |  0.289     | 
+| QPP-GenRE (ours)|**0.249**  |
+
+Table: Predicting the performance of ANCE in terms of RR@10 on TREC-DL 19.
+| Method      | sMARE     |
+|---|---|
+| Clarity         |  0.335     |
+| WIG             |  0.307      |
+| NQC             |  0.307      | 
+| 𝜎𝑚𝑎𝑥            |  0.281      | 
+| n(𝜎𝑥%)          |  0.287      | 
+| SMV             |  0.278     | 
+|UEF(NQC)         |  0.266     | 
+|RLS(NQC)         | 0.269      | 
+| QPP-PRP         |  0.296    |
+| Dense-QPP       |  0.317    |
+| NQAQPP         |  0.316      | 
+| BERTQPP         |  0.286     | 
+| qppBERT-PL      |  0.274     | 
+| M-QPPF          |  0.291      | 
+| QPP-GenRE (ours)| **0.119**  |
+
+Table: Predicting the performance of ANCE in terms of RR@10 on TREC-DL 20.
+| Method      | sMARE     |
+|---|---|
+| Clarity         |  0.325     |
+| WIG             |  0.333     |
+| NQC             |  0.302     | 
+| 𝜎𝑚𝑎𝑥            |  0.306      | 
+| n(𝜎𝑥%)          |  0.339     | 
+| SMV             |  0.294     | 
+|UEF(NQC)         |  0.335     | 
+|RLS(NQC)         | 0.302      | 
+| QPP-PRP         |  0.307    |
+| Dense-QPP       |  0.292    |
+| NQAQPP          |  0.368     | 
+| BERTQPP         |  0.365     | 
+| qppBERT-PL      |  0.359     | 
+| M-QPPF          |  0.321     | 
+| QPP-GenRE (ours)|**0.228**  |
+
+
+Table: Predicting the performance of BM25 in terms of nDCG@10 on TREC-DL 19.
+| Method      | sMARE     |
+|---|---|
+| Clarity          |  0.309      |
+| WIG             |   0.239      |
+| NQC            |   0.239      | 
+| 𝜎𝑚𝑎𝑥            |   0.236     | 
+| n(𝜎𝑥%)          |  0.238      | 
+|SMV             |    0.241    | 
+|UEF(NQC)         |   0.236    | 
+|RLS(NQC)          |  0.233      | 
+| QPP-PRP         |  0.287    |
+|NQAQPP        |    0.295    | 
+|BERTQPP         |  0.273    | 
+|qppBERT-PL      |  0.296    | 
+|M-QPPF          |  0.264     | 
+| QPP-GenRE (ours)| **0.198**  |
+
+Table: Predicting the performance of BM25 in terms of nDCG@10 on TREC-DL 20.
+| Method      | sMARE     |
+|---|---|
+| Clarity          | 0.251     |
+| WIG             |  0.213     |
+| NQC             |   0.215    | 
+| 𝜎𝑚𝑎𝑥           |   0.211    | 
+| n(𝜎𝑥%)          |   0.206        | 
+| SMV             |   0.218       | 
+|UEF(NQC)         |   0.227    | 
+|RLS(NQC)          |  0.223      | 
+| QPP-PRP         |  0.305    |
+| NQAQPP         |   0.272    | 
+| BERTQPP         |   0.248   | 
+| qppBERT-PL      |   0.274    | 
+| M-QPPF          |    0.243    | 
+| QPP-GenRE (ours)|  **0.177** |
+
+Table: Predicting the performance of BM25 in terms of nDCG@10 on TREC-DL 21.
+| Method      | sMARE     |
+|---|---|
+| Clarity         |   0.307    |
+| WIG             |   0.252     |
+| NQC             |   0.266     | 
+| 𝜎𝑚𝑎𝑥             |   0.258       | 
+| n(𝜎𝑥%)           |  0.264     | 
+| SMV             |   0.271    | 
+|UEF(NQC)         |   0.262    | 
+|RLS(NQC)          |  0.286      | 
+| QPP-PRP         |  0.341    |
+| NQAQPP         |   0.266    | 
+| BERTQPP         |  0.261    | 
+| qppBERT-PL      |  0.279      | 
+| M-QPPF          |  0.259     | 
+| QPP-GenRE (ours)| **0.201**|
+
+Table: Predicting the performance of BM25 in terms of nDCG@10 on TREC-DL 22.
+| Method      | sMARE     |
+|---|---|
+| Clarity          |  0.307      |
+| WIG             |   0.265        |
+| NQC             |   0.282        | 
+| 𝜎𝑚𝑎𝑥             |   0.283     | 
+| n(𝜎𝑥%)            |   0.264      | 
+| SMV             |    0.276     | 
+|UEF(NQC)         |   0.282    | 
+|RLS(NQC)          |  0.284      | 
+| QPP-PRP         |   0.339   |
+| NQAQPP         |    0.283     | 
+| BERTQPP         |   0.273     | 
+| qppBERT-PL      |   0.289     | 
+| M-QPPF          |   0.283     | 
+| QPP-GenRE (ours)| **0.249** |
+
+Table: Predicting the performance of ANCE in terms of nDCG@10 on TREC-DL 19.
+| Method      | sMARE     |
+|---|---|
+| Clarity          |   0.366    |
+| WIG             |    0.213    |
+| NQC             |    0.221    | 
+| 𝜎𝑚𝑎𝑥             |   0.223     | 
+| n(𝜎𝑥%)          |     0.239    | 
+| SMV             |      0.228   | 
+|UEF(NQC)         |   0.221    | 
+|RLS(NQC)          |  0.224    | 
+| QPP-PRP        |  0.309   |
+| Dense-QPP         | 0.212      |
+| NQAQPP         |   0.329     | 
+| BERTQPP         |   0.309    |
+| qppBERT-PL      |    0.343    | 
+| M-QPPF          |   0.292    | 
+| QPP-GenRE (ours)| **0.186**  |
+
+Table: Predicting the performance of ANCE in terms of nDCG@10 on TREC-DL 20.
+| Method      | sMARE     |
+|---|---|
+| Clarity          |  0.345    |
+| WIG             |   0.297    |
+| NQC             |   0.254        | 
+| 𝜎𝑚𝑎𝑥             |   0.250        | 
+| n(𝜎𝑥%)          |    0.305    | 
+| SMV             |     0.250      | 
+| UEF(NQC)         |    0.250   | 
+| RLS(NQC)          |   0.254     | 
+| QPP-PRP         | 0.294     |
+| Dense-QPP         |  0.242    |
+| NQAQPP         |    0.304    | 
+| BERTQPP         |    0.304    | 
+| qppBERT-PL      |   0.324   | 
+| M-QPPF          |    0.274    | 
+| QPP-GenRE (ours)| **0.228** |
