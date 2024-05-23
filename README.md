@@ -890,7 +890,7 @@ python -u judge_relevance.py \
 
 ``` 
 ### 3.5 Fine-tuning Llama 3
-``
+``` 
 # fine-tune Llama-3-8B on the training split
 python -u judge_relevance.py \
 --model_name_or_path "meta-llama/Meta-Llama-3-8B" \
