@@ -8,16 +8,16 @@ import pytrec_eval
 from sklearn.metrics import cohen_kappa_score, accuracy_score, confusion_matrix, classification_report
 
 
-def evaluation(qrels_true_dir=None, qrels_pred_dir=None, binary=False, pre_is_binary = False):
+def evaluation(args):
 
-    target_names = ["Perfectly relevant", "Highly relevant", "Related", "Irrelevant"] if not binary else ["Relevant", "Not relevant"]
-    labels = [3, 2, 1, 0] if not binary else [1, 0]
+    target_names = args.multi_text if not args.binary else args.binary_text
+    labels = args.multi_num if not args.binary else args.binary_num
     place = 3
 
-    with open(qrels_true_dir, 'r') as r_qrels:
+    with open(args.qrels_true_dir, 'r') as r_qrels:
         qrels_true = pytrec_eval.parse_qrel(r_qrels)
 
-    with open(qrels_pred_dir, 'r') as r_qrels:
+    with open(args.qrels_pred_dir, 'r') as r_qrels:
         qrels_pred = pytrec_eval.parse_qrel(r_qrels)
 
     true_list=[]
@@ -25,8 +25,8 @@ def evaluation(qrels_true_dir=None, qrels_pred_dir=None, binary=False, pre_is_bi
 
     for qid in qrels_true.keys():
         for pid in qrels_true[qid].keys():
-            true_list.append(qrels_true[qid][pid] if not binary else (1 if qrels_true[qid][pid] in [2,3] else 0))
-            pred_list.append(qrels_pred[qid][pid] if pre_is_binary or not binary else (1 if qrels_pred[qid][pid] in [2,3] else 0))
+            true_list.append(qrels_true[qid][pid] if not args.binary else (1 if qrels_true[qid][pid] in args.multi_num_pos else 0))
+            pred_list.append(qrels_pred[qid][pid] if args.pre_is_binary or not args.binary else (1 if qrels_pred[qid][pid] in args.multi_num_pos else 0))
 
     cohen_kappa = cohen_kappa_score(true_list,pred_list)
     accuracy = accuracy_score(true_list,pred_list)
@@ -62,21 +62,6 @@ def evaluation(qrels_true_dir=None, qrels_pred_dir=None, binary=False, pre_is_bi
     return result_dict
 
 
-
-def evaluation_glob(ap_path=None, pattern=None):
-    for target_metric in target_metrics:
-        for pp_path in sorted(glob.glob(pattern)):
-            name = pp_path.split("/")[-1]
-            dataset = pp_path.split("/")[-1].split(".")[0]
-            output_path ="/".join(pattern.split("/")[:-1])
-            pattern_name = pattern.split("/")[-1]
-
-            result_dict = evaluation(ap_path=ap_path, pp_path=pp_path, target_metric=target_metric)
-
-            with open(f"{output_path}/result.{pattern_name}", 'a+', encoding='utf-8') as w:
-                name_=f"{name}.{target_metric}:"
-                w.write(f"{name_.ljust(85, ' ')} {str(result_dict)}{os.linesep}")
-
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
@@ -87,9 +72,24 @@ if __name__ == '__main__':
     parser.add_argument("--pre_is_binary", action='store_true')
     args = parser.parse_args()
 
-    if args.pattern is not None:
-        evaluation_glob(args.qrels_true_dir, args.qrels_pred_dir, rgs.pattern)
-    else:
-        result = evaluation(args.qrels_true_dir, args.qrels_pred_dir, args.binary, args.pre_is_binary)
+    args.dataset_class = args.qrels_true_dir.split("/")[-3]
+    assert args.dataset_class == args.qrels_pred_dir.split("/")[-3]
+
+    if "msmarco" in args.dataset_class:
+        args.multi_text = ["Perfectly relevant", "Highly relevant", "Related", "Irrelevant"]
+        args.binary_text = ["Relevant", "Not relevant"]
+        args.multi_num =  [3, 2, 1, 0]
+        args.multi_num_pos = [2, 3]
+        args.binary_num = [1, 0]
+
+    elif "ikat" == args.dataset_class:
+        args.multi_text = ["Fully meets", "Highly meets", "Moderately meets", "Slightly meets", "Fails to meet"]
+        args.binary_text = ["Relevant", "Not relevant"]
+        args.multi_num =  [4, 3, 2, 1, 0]
+        args.multi_num_pos = [2,3,4]
+        args.binary_num = [1, 0]
+
+
+    result = evaluation(args)
 
 

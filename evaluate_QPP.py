@@ -19,7 +19,6 @@ def calculate_sMARE(list_1, list_2):
 
     return sum(sARE_scores)/Q
 
-
 def evaluation(ap_path=None, pp_path=None, target_metric="ndcg@3"):
     print("#"*10+"evaluation begins"+"#"*10)
     print("ap_path: ", ap_path)

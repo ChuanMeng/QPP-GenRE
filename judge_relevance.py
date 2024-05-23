@@ -51,7 +51,7 @@ def parser_digit(text):
 class Prompter:
     def __init__(self, args):
         self.args=args
-        if args.prompt == "binary":
+        if self.args.prompt == "binary":
             self.template ="Instruction: Please assess the relevance of the provided passage to the following question. Please output \"Relevant\" or \"Irrelevant\".\n{demonstrations}Question: {question}\nPassage: {passage}\nOutput:"
             self.spliter="Output: "
             self.pos_label ="Relevant"
@@ -59,7 +59,7 @@ class Prompter:
             self.demonstration="Question: {question}\nPassage: {passage}\nOutput: {output}\n"
             self.parser = parser_binary
 
-        elif args.prompt == "ikat":
+        elif self.args.prompt == "ikat":
             self.template = "You are a search quality rater evaluating the relevance of web pages.\nGiven the persona of the user, user query, and a web page, you must provide a score on an integer scale of 0 to 4 to indicate to what extent the given document meets the information needs of the user.\nThe scores have the following meanings:\n\n0: fails to meet\n1: slightly meets\n2: moderately meets\n3: highly meets\n4: fully meets\n\nUser persona: {ptkb}\nQuery: {query}\nPassage: {passage}\nScore:"
             self.spliter = "Score:"
             self.labels = ["0", "1", "2", "3", "4"]
@@ -290,7 +290,7 @@ def load_rj_data(args):
                 passage_text = passage_dict['contents'] if 'contents' in passage_dict else passage_dict['passage']
                 passage_text = passage_text.replace("\t", " ").replace("\n", " ").replace("\r", " ")
 
-                example["input"] = args.prompter.template.format(question=query[qid],passage=passage_text[:args.max_char_len])
+                example["input"] = args.prompter.template.format(demonstrations="", question=query[qid],passage=passage_text[:args.max_char_len])
 
                 if rel >= 2:
                     example["output"] = args.prompter.pos_label
@@ -301,18 +301,19 @@ def load_rj_data(args):
 
             elif "ikat" == args.dataset_class:
                 if args.prompt == "ikat":
-                    example["input"] = args.prompter.template(query=query[qid], ptkb=ptkb[qid],passage=corpus[pid][:args.max_char_len])
+                    example["input"] = args.prompter.template.format(query=query[qid], ptkb=ptkb[qid],passage=corpus[pid][:args.max_char_len])
                     example["example_id"] = f"{qid}#{rel}#{pid}"
                     example["output"] = str(rel)
 
                 elif args.prompt == "binary":
-                    example["input"] = args.prompter.template(question=query[qid], passage=corpus[pid][:args.max_char_len])
+
+                    example["input"] = args.prompter.template.format(demonstrations="", question=query[qid], passage=corpus[pid][:args.max_char_len])
 
                     if rel >= 2:
-                        example["output"] = POS_LABEL
+                        example["output"] = args.prompter.pos_label
                         example["example_id"] = f"{qid}#pos#{pid}"
                     else:
-                        example["output"] = NEG_LABEL
+                        example["output"] = args.prompter.neg_label
                         example["example_id"] = f"{qid}#neg#{pid}"
 
 
@@ -320,6 +321,8 @@ def load_rj_data(args):
                 count[example["output"]]=1
             else:
                 count[example["output"]]+=1
+
+            print(example["input"],"\n")
 
             examples.append(example)
 
@@ -377,7 +380,7 @@ def train(args):
         llm_int8_has_fp16_weight=False,
     ))
 
-    tokenizer = AutoTokenizer.from_pretrained(args.model_name_or_path,padding_side=args.padding_side, cache_dir=args.cache_dir, token=args.token)
+    tokenizer = AutoTokenizer.from_pretrained(args.model_name_or_path, padding_side=args.padding_side, cache_dir=args.cache_dir, token=args.token)
 
     tokenizer.pad_token = tokenizer.eos_token
     tokenizer.padding_side = args.padding_side
@@ -505,6 +508,8 @@ def train(args):
 
 
 def infer(args):
+
+
     model = AutoModelForCausalLM.from_pretrained(
         args.model_name_or_path,
         device_map="auto",
@@ -541,6 +546,7 @@ def infer(args):
 
     model.eval()
 
+
     if args.rj:
         examples = load_rj_data(args)
     else:
@@ -570,7 +576,7 @@ def infer(args):
 
         for idx, example in enumerate(examples[rng]):
             #qid, rank, pid  = example["example_id"].split("#")
-            prediction = predictions[idx].split(SPLITER)[-1].strip()
+            prediction = predictions[idx].split(args.prompter.spliter)[-1].strip()
             example["prediction"] = args.prompter.parser(prediction)
 
             #if prediction not in [POS_LABEL, NEG_LABEL]:
@@ -604,6 +610,7 @@ if __name__ == '__main__':
     parser.add_argument("--output_dir", type=str)
 
     parser.add_argument("--query_path", type=str, default=None)
+    parser.add_argument("--ptkb_path", type=str, default=None)
     parser.add_argument("--index_path", type=str, default=None)
     parser.add_argument("--run_path", type=str, default=None)
     parser.add_argument("--qrels_path", type=str, default=None)
@@ -644,7 +651,7 @@ if __name__ == '__main__':
     args.query_type = "-".join(args.query_path.split("/")[-1].split(".")[1].split("-")[1:])
     args.qrels_name = ".".join(args.qrels_path.split("/")[-1].split(".")[0:-1])
 
-    args.prompter = Prompter(args.prompt)
+    args.prompter = Prompter(args)
 
     if not args.rj:
         args.retriever = "-".join(args.run_path.split("/")[-1].split(".")[1].split("-")[1:])
@@ -652,13 +659,13 @@ if __name__ == '__main__':
     args.base_model = args.model_name_or_path.split("/")[-1]
 
     if args.infer is True:
-        # inference mode
+        # inference mode with a fine-tuned checkpoint
         if args.checkpoint_name:
             args.checkpoint_path_ = f"{args.checkpoint_path}/{args.checkpoint_name}/"
             if "/" in args.checkpoint_name:
                 args.checkpoint_name=args.checkpoint_name.replace("/","-")
             if args.rj:
-                args.setup = f"{args.qrels_name}.{args.base_model}-ckpt-{args.checkpoint_name}"
+                args.setup = f"{args.qrels_name}.{args.query_type}-{args.base_model}-ckpt-{args.checkpoint_name}"
             else:
                 args.setup = f"{args.dataset_name}.{args.retriever}.{args.query_type}-{args.base_model}-ckpt-{args.checkpoint_name}.k{args.k}"
         else:
