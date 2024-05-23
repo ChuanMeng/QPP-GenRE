@@ -40,7 +40,7 @@ pip install -r requirements.txt
 ### 2.1 Prerequisite
 
 #### Download datasets 
-Please first download `dataset.zip` (containing queries, run files, qrels files and files containing the actual retrieval quality of queries) from [here](https://drive.google.com/file/d/1d_bEofABPmnQKdHk-fdYT02tyzB4VBmI/view?usp=share_link), and then unzip it in the current directory.
+Please first download `dataset.zip` (containing queries, run files, qrels files and files containing the actual retrieval quality of queries) from [here](https://drive.google.com/file/d/1EO_9rp4m9g9geEENndOQlicqfJkjEsA0/view?usp=share_link), and then unzip it in the current directory.
 
 Then, please download MS MARCO V1 and V2 passage ranking collections from [Pyserini](https://github.com/castorini/pyserini):
 ```bash
@@ -61,7 +61,7 @@ export LLAMA_7B_PATH={your path to the weights of LLaMA-7B (Hugging Face Transfo
 
 #### Download the checkpoints of fine-tuned LLaMA-7B
 We release ***the checkpoints of our fine-tuned LLaMA-7B*** for the reproducibility of the results reported in the paper.
-Please download `checkpoint.zip` from [here](https://drive.google.com/file/d/1dGeJS0lJxMtZwGKrZaTRefe4TImxEQ1n/view?usp=share_link), and then unzip it in the current directory.
+Please download `checkpoint.zip` from [here](https://drive.google.com/file/d/1u_ahOv0KSKwMvO_0yaC7Cx6ky_duS08V/view?usp=share_link), and then unzip it in the current directory.
 
 > [!NOTE]
 > We leverage 4-bit quantized LLaMA-7B for either inference or fine-tuning in this paper; we use an NVIDIA A100 Tensor Core GPU (40GB) to conduct all experiments in our paper.
@@ -742,7 +742,7 @@ Table: Predicting the performance of ANCE in terms of nDCG@10 on TREC-DL 20.
 
 ### 3.1 Prerequisite
 #### Download datasets 
-Please first download `dataset.zip` (containing queries, qrels files and corpus) from [here](https://drive.google.com/file/d/1d_bEofABPmnQKdHk-fdYT02tyzB4VBmI/view?usp=share_link), and then unzip it in the current directory.
+Please first download `dataset.zip` (containing queries, qrels files and corpus) from [here](https://drive.google.com/file/d/1EO_9rp4m9g9geEENndOQlicqfJkjEsA0/view?usp=share_link), and then unzip it in the current directory.
 
 Then, please run the following commands to preprocess the dataset:
 ```bash
@@ -760,7 +760,7 @@ export CACHE_DIR={your cache path that stores the weights of Llama 3}
 
 #### Download the checkpoints of fine-tuned Llama 3
 We release ***the checkpoints of our fine-tuned Llama 3*** for the reproducibility of the results reported in the paper.
-Please download `checkpoint.zip` from [here](https://drive.google.com/file/d/1dGeJS0lJxMtZwGKrZaTRefe4TImxEQ1n/view?usp=share_link), and then unzip it in the current directory.
+Please download `checkpoint.zip` from [here](https://drive.google.com/file/d/1u_ahOv0KSKwMvO_0yaC7Cx6ky_duS08V/view?usp=share_link), and then unzip it in the current directory.
 
 ### 3.2 Inference using fine-tuned LLaMA
 ```
