@@ -16,23 +16,58 @@ import pytrec_eval
 from pyserini.search.lucene import LuceneSearcher
 from transformers.trainer_utils import PREFIX_CHECKPOINT_DIR
 
-TEMPLATE="Instruction: Please assess the relevance of the provided passage to the following question. Please output \"Relevant\" or \"Irrelevant\".\n{demonstrations}Question: {question}\nPassage: {passage}\nOutput:"
-SPLITER="Output: "
-POS_LABEL="Relevant"
-NEG_LABEL="Irrelevant"
-DEMONSTRATION="Question: {question}\nPassage: {passage}\nOutput: {output}\n"
+torch.backends.cuda.matmul.allow_tf32 = True # A bool that controls whether TensorFloat-32 tensor cores may be used in matrix multiplications on Ampere or newer GPUs.
+IGNORE_INDEX = -100
 
-def text_parser(text):
+
+def parser_binary(text):
+
+    if text in ["Relevant", "Irrelevant"]:
+        return "1" if text =="Relevant" else "0"
+
     print(f"Parsing:***********\nOriginal text:\n{text}\n")
-    if NEG_LABEL in text or "Ir" in text:
-        text_ = NEG_LABEL
+    if "Irrelevant" in text or "Ir" in text:
+        text_ = "0"
     else:
-        text_ = POS_LABEL
+        text_ = "1"
     print(f"Parsed text:\n{text_}\n***********\n")
     return text_
 
-torch.backends.cuda.matmul.allow_tf32 = True # A bool that controls whether TensorFloat-32 tensor cores may be used in matrix multiplications on Ampere or newer GPUs.
-IGNORE_INDEX = -100
+def extract_first_digit(text):
+    for char in text:
+        if char.isdigit():
+            return char
+    return "0"
+
+def parser_digit(text):
+    if text in ["0", "1", "2", "3", "4"]:
+        return text
+    else:
+        print(f"Parsing:***********\nOriginal text:\n{text}\n")
+        text_ = extract_first_digit(text)
+        print(f"Parsed text:\n{text_}\n***********\n")
+    return text_
+
+class Prompter:
+    def __init__(self, args):
+        self.args=args
+        if args.prompt == "binary":
+            self.template ="Instruction: Please assess the relevance of the provided passage to the following question. Please output \"Relevant\" or \"Irrelevant\".\n{demonstrations}Question: {question}\nPassage: {passage}\nOutput:"
+            self.spliter="Output: "
+            self.pos_label ="Relevant"
+            self.neg_label="Irrelevant"
+            self.demonstration="Question: {question}\nPassage: {passage}\nOutput: {output}\n"
+            self.parser = parser_binary
+
+        elif args.prompt == "ikat":
+            self.template = "You are a search quality rater evaluating the relevance of web pages.\nGiven the persona of the user, user query, and a web page, you must provide a score on an integer scale of 0 to 4 to indicate to what extent the given document meets the information needs of the user.\nThe scores have the following meanings:\n\n0: fails to meet\n1: slightly meets\n2: moderately meets\n3: highly meets\n4: fully meets\n\nUser persona: {ptkb}\nQuery: {query}\nPassage: {passage}\nScore:"
+            self.spliter = "Score:"
+            self.labels = ["0", "1", "2", "3", "4"]
+            self.parser = parser_digit
+
+        else:
+            raise Exception
+
 
 class SavePeftModelCallback(transformers.TrainerCallback):
     def save_model(self, args, state, kwargs):
@@ -222,7 +257,23 @@ def load_rj_data(args):
         qid, qtext = line.split('\t')
         query[qid] = qtext.replace("\t", "").replace("\n", "").replace("\r", "")
 
-    searcher = LuceneSearcher(args.index_path)
+    if "msmarco" in args.dataset_class:
+        searcher = LuceneSearcher(args.index_path)
+
+    elif "ikat" == args.dataset_class:
+        ptkb = {}
+        ptkb_reader = open(args.ptkb_path, 'r').readlines()
+        for line in ptkb_reader:
+            qid, ptkb_text = line.split('\t')
+            ptkb[qid] = ptkb_text.replace("\t", "").replace("\n", "").replace("\r", "")
+
+        corpus = {}
+        corpus_reader = open(args.index_path, 'r').readlines()
+        for line in corpus_reader:
+            pid, passage_text = line.split('\t')
+            corpus[pid] = passage_text.replace("\t", "").replace("\n", "").replace("\r", "")
+    else:
+        raise Exception
 
     with open(args.qrels_path, 'r') as f_qrels:
         qrels = pytrec_eval.parse_qrel(f_qrels)
@@ -233,18 +284,37 @@ def load_rj_data(args):
     for qid, pid2rel in qrels.items():
         for pid, rel in pid2rel.items():
             example = {}
-            passage_dict = json.loads(searcher.doc(pid).raw())
-            passage_text = passage_dict['contents'] if 'contents' in passage_dict else passage_dict['passage']
-            passage_text = passage_text.replace("\t", " ").replace("\n", " ").replace("\r", " ")
 
-            example["input"] = TEMPLATE.format(question=query[qid],passage=passage_text[:args.max_char_len])
+            if "msmarco" in args.dataset_class:
+                passage_dict = json.loads(searcher.doc(pid).raw())
+                passage_text = passage_dict['contents'] if 'contents' in passage_dict else passage_dict['passage']
+                passage_text = passage_text.replace("\t", " ").replace("\n", " ").replace("\r", " ")
 
-            if rel >= 2:
-                example["output"] = POS_LABEL
-                example["example_id"] = f"{qid}#pos#{pid}"
-            else:
-                example["output"] = NEG_LABEL
-                example["example_id"] = f"{qid}#neg#{pid}"
+                example["input"] = args.prompter.template.format(question=query[qid],passage=passage_text[:args.max_char_len])
+
+                if rel >= 2:
+                    example["output"] = args.prompter.pos_label
+                    example["example_id"] = f"{qid}#pos#{pid}"
+                else:
+                    example["output"] = args.prompter.neg_label
+                    example["example_id"] = f"{qid}#neg#{pid}"
+
+            elif "ikat" == args.dataset_class:
+                if args.prompt == "ikat":
+                    example["input"] = args.prompter.template(query=query[qid], ptkb=ptkb[qid],passage=corpus[pid][:args.max_char_len])
+                    example["example_id"] = f"{qid}#{rel}#{pid}"
+                    example["output"] = str(rel)
+
+                elif args.prompt == "binary":
+                    example["input"] = args.prompter.template(question=query[qid], passage=corpus[pid][:args.max_char_len])
+
+                    if rel >= 2:
+                        example["output"] = POS_LABEL
+                        example["example_id"] = f"{qid}#pos#{pid}"
+                    else:
+                        example["output"] = NEG_LABEL
+                        example["example_id"] = f"{qid}#neg#{pid}"
+
 
             if example["output"] not in count:
                 count[example["output"]]=1
@@ -297,7 +367,8 @@ def train(args):
         args.model_name_or_path,
         device_map=device_map,
         torch_dtype=torch.bfloat16,
-        load_in_4bit=True,
+        cache_dir=args.cache_dir,
+        token=args.token,
         quantization_config=BitsAndBytesConfig(
         load_in_4bit=True,
         bnb_4bit_use_double_quant=True,
@@ -306,7 +377,7 @@ def train(args):
         llm_int8_has_fp16_weight=False,
     ))
 
-    tokenizer = AutoTokenizer.from_pretrained(args.model_name_or_path,padding_side=args.padding_side)
+    tokenizer = AutoTokenizer.from_pretrained(args.model_name_or_path,padding_side=args.padding_side, cache_dir=args.cache_dir, token=args.token)
 
     tokenizer.pad_token = tokenizer.eos_token
     tokenizer.padding_side = args.padding_side
@@ -314,7 +385,7 @@ def train(args):
     model.config.torch_dtype =torch.bfloat16
     model.config.pad_token_id = model.config.eos_token_id
     model.generation_config.pad_token_id = model.generation_config.eos_token_id
-    model.generation_config.eos_token_id = model.generation_config.eos_token_id
+    #model.generation_config.eos_token_id = model.generation_config.eos_token_id
 
     print(f"model.config:\n{model.config}")
     print(f"model.generation_config:\n{model.generation_config}")
@@ -371,7 +442,11 @@ def train(args):
 
         return tokenized_prompt_label
 
-    examples = load_qpp_data(args)
+    if args.rj:
+        examples = load_rj_data(args)
+    else:
+        examples = load_qpp_data(args)
+
     dataset = Dataset.from_list(examples)
     dataset = dataset.shuffle().map(generate_and_tokenize_prompt)
     print(f"dataset.column_names:\n{dataset.column_names}")
@@ -434,6 +509,8 @@ def infer(args):
         args.model_name_or_path,
         device_map="auto",
         torch_dtype=torch.bfloat16,
+        cache_dir=args.cache_dir,
+        token=args.token,
         quantization_config=BitsAndBytesConfig(
         load_in_4bit=True,
         load_in_8bit=False,
@@ -447,7 +524,7 @@ def infer(args):
         model = PeftModel.from_pretrained(model, args.checkpoint_path_)
         #model = model.merge_and_unload() # not necessary
 
-    tokenizer = AutoTokenizer.from_pretrained(args.model_name_or_path,padding_side=args.padding_side)
+    tokenizer = AutoTokenizer.from_pretrained(args.model_name_or_path,padding_side=args.padding_side, cache_dir=args.cache_dir, token=args.token)
 
     tokenizer.pad_token = tokenizer.eos_token
     tokenizer.padding_side = args.padding_side
@@ -455,7 +532,12 @@ def infer(args):
     model.config.torch_dtype =torch.bfloat16
     model.config.pad_token_id = model.config.eos_token_id
     model.generation_config.pad_token_id = model.generation_config.eos_token_id
-    model.generation_config.eos_token_id = model.generation_config.eos_token_id
+
+    if isinstance(model.generation_config.eos_token_id, list):
+        model.generation_config.pad_token_id = model.generation_config.eos_token_id[0] # llama 3 128001
+        #model.generation_config.eos_token_id = model.generation_config.eos_token_id[0]
+    else:
+        model.generation_config.pad_token_id = model.generation_config.eos_token_id # llama 3 128001
 
     model.eval()
 
@@ -487,16 +569,18 @@ def infer(args):
         predictions = tokenizer.batch_decode(predictions, skip_special_tokens=True, clean_up_tokenization_spaces=True)
 
         for idx, example in enumerate(examples[rng]):
-            qid, rank, pid  = example["example_id"].split("#")
-            prediction = predictions[idx].split(SPLITER)[-1]
-            if prediction not in [POS_LABEL, NEG_LABEL]:
-                prediction = text_parser(prediction)
-            example["prediction"] = prediction
+            #qid, rank, pid  = example["example_id"].split("#")
+            prediction = predictions[idx].split(SPLITER)[-1].strip()
+            example["prediction"] = args.prompter.parser(prediction)
+
+            #if prediction not in [POS_LABEL, NEG_LABEL]:
+            #   prediction = text_parser(prediction)
+            #example["prediction"] = prediction
 
     with open(f"{args.output_dir_}", 'w') as rj_w:
         for idx, example in enumerate(examples):
             qid, rank, pid = example["example_id"].split("#")
-            rel = 1 if example["prediction"]==POS_LABEL else 0
+            rel = example["prediction"]
             rj_w.write(f"{qid} 0 {pid} {rel}\n")
 
     return None
@@ -506,6 +590,11 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("--infer", action='store_true')
     parser.add_argument("--rj", action='store_true')
+
+    parser.add_argument("--prompt", type=str) # binary, ikat_digit
+
+    parser.add_argument("--token", type=str)
+    parser.add_argument("--cache_dir", type=str)
 
     parser.add_argument("--model_name_or_path", type=str)
     parser.add_argument("--checkpoint_path", type=str)
@@ -555,6 +644,8 @@ if __name__ == '__main__':
     args.query_type = "-".join(args.query_path.split("/")[-1].split(".")[1].split("-")[1:])
     args.qrels_name = ".".join(args.qrels_path.split("/")[-1].split(".")[0:-1])
 
+    args.prompter = Prompter(args.prompt)
+
     if not args.rj:
         args.retriever = "-".join(args.run_path.split("/")[-1].split(".")[1].split("-")[1:])
 
@@ -592,7 +683,11 @@ if __name__ == '__main__':
 
     else:
         # training mode
-        args.setup = f"{args.dataset_name}.{args.retriever}.{args.query_type}-{args.base_model}-neg{args.num_negs}"
+        if args.rj:
+            args.setup = f"{args.qrels_name}.{args.base_model}"
+        else:
+            args.setup = f"{args.dataset_name}.{args.retriever}.{args.query_type}-{args.base_model}-neg{args.num_negs}"
+
         args.checkpoint_path_ = f"{args.checkpoint_path}/{args.setup}/"
 
     replicability(seed=args.random_seed)
