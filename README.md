@@ -49,7 +49,7 @@ wget -P ./datasets/msmarco-v2-passage/ https://rgw.cs.uwaterloo.ca/pyserini/inde
 tar -zxvf  ./datasets/msmarco-v2-passage/lucene-index.msmarco-v2-passage-full.20220808.4d6d2a.tar.gz -C ./datasets/msmarco-v2-passage/
 ```
 
-#### Fetch the original weights of LLaMA-7B, Llama-3-8B and Llama-3-8B-Instruct
+#### Fetch the original weights of LLaMA-7B
 Please refer to the LLaMA [repository](https://github.com/facebookresearch/llama/tree/llama_v1) to fetch the original weights of LLaMA-7B.
 And then, please follow the instructions from [here](https://huggingface.co/docs/transformers/main/model_doc/llama) to convert the original weights for the LLaMA-7B model to the Hugging Face Transformers format. 
 Next, set your local path to the weights of LLaMA-7B (Hugging Face Transformers format) as an environment variable, which will be used in the following process.
@@ -57,7 +57,7 @@ Next, set your local path to the weights of LLaMA-7B (Hugging Face Transformers 
 export LLAMA_7B_PATH={your path to the weights of LLaMA-7B (Hugging Face Transformers format)}
 ```
 
-#### Download the checkpoints of fine-tuned LLaMA-7B
+#### Download the checkpoints of fine-tuned LLaMA-7B, Llama-3-8B and Llama-3-8B-Instruct
 We release ***the checkpoints of our fine-tuned LLaMA-7B*** for the reproducibility of the results reported in the paper.
 Please download `checkpoint.zip` from [here](https://drive.google.com/file/d/1u_ahOv0KSKwMvO_0yaC7Cx6ky_duS08V/view?usp=share_link), and then unzip it in the current directory.
 
@@ -65,7 +65,7 @@ Please download `checkpoint.zip` from [here](https://drive.google.com/file/d/1u_
 > We leverage 4-bit quantized LLaMA-7B for either inference or fine-tuning in this paper; we use an NVIDIA A100 Tensor Core GPU (40GB) to conduct all experiments in our paper.
 
 
-### 🚀 2.2 Inference using fine-tuned LLaMA
+### 🚀 2.2 Inference using fine-tuned LLaMA-7B, Llama-3-8B and Llama-3-8B-Instruct
 The part shows how to directly use our released checkpoints of fine-tuned LLaMA-7B to predict the performance of BM25 and ANCE on TREC-DL 19, 20, 21 and 22 datasets.
 Please run `judge_relevance.py` and `predict_measures.py` sequentially to finish one prediction for one ranker on one dataset.
 Specifically, `judge_relevance.py` aims to automatically generate relevance judgments for a ranked list returned by BM25 or ANCE; the generated relevance judgments are saved to `./output/`. 
@@ -208,7 +208,7 @@ python -u judge_relevance.py \
 --num_negs 1 
 ```
 > [!NOTE]
-> Fine-tuning LLaMA-7B using QLoRA for 5 epochs on the development set of MS MARCO V1 takes about an hour and a half on an NVIDIA A100 GPU.
+> Fine-tuning LLaMA-7B, Llama-3-8B and Llama-3-8B-Instruct using QLoRA for 5 epochs on the development set of MS MARCO V1 takes about an hour and a half on an NVIDIA A100 GPU.
 
 ### 🛞 2.4 In-context learning using LLaMA-7B, Llama-3-8B and Llama-3-8B-Instruct
 In the setting of in-context learning, we freeze the parameters of LLaMA.
