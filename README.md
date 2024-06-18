@@ -67,7 +67,7 @@ export CACHE_DIR={your cache path that stores the weights of Llama 3}
 #### Download the checkpoints of fine-tuned LLaMA-7B, Llama-3-8B and Llama-3-8B-Instruct
 For the reproducibility of the results reported in the paper, please download the checkpoints of our fine-tuned 
 - [LLaMA-7B](https://drive.google.com/file/d/1UCoHRhm4n3bYl07eVvLRHmxABuEQknXU/view?usp=share_link), 
-- [Llama-3-8B](https://drive.google.com/file/d/1AOw73Um8p-d_MOn9CxNZSe_ufvYXRlgs/view?usp=share_link) and 
+- [Llama-3-8B](https://drive.google.com/file/d/1AOw73Um8p-d_MOn9CxNZSe_ufvYXRlgs/view?usp=share_link),
 - [Llama-3-8B-Instruct](https://drive.google.com/file/d/15VvHS9jV-1J8RwfGJCmaJTNEgaP-5_qC/view?usp=share_link).
 
 After downloading, please unzip them in a new directory `./checkpoint/`.
@@ -1081,7 +1081,9 @@ export CACHE_DIR={your cache path that stores the weights of Llama 3}
 ```
 
 #### Download the checkpoints of fine-tuned Llama-3-8B and Llama-3-8B-Instruct
-Please download the checkpoints of our fine-tuned [Llama-3-8B](https://drive.google.com/file/d/1nIS0BAobwo71EZiC9eBNCqWG7SVjXC_J/view?usp=share_link) and [Llama-3-8B-Instruct](https://drive.google.com/file/d/1-aJXKLRNw0zGRD34nM3YwqHPo1fA1IzK/view?usp=share_link), for the reproducibility of the results reported in the paper.
+For the reproducibility of the results reported in the paper, please download the checkpoints of our fine-tuned 
+- [Llama-3-8B](https://drive.google.com/file/d/1nIS0BAobwo71EZiC9eBNCqWG7SVjXC_J/view?usp=share_link)
+- [Llama-3-8B-Instruct](https://drive.google.com/file/d/1-aJXKLRNw0zGRD34nM3YwqHPo1fA1IzK/view?usp=share_link)
 After downloading, please unzip them in a new directory `./checkpoint/`.
 
 ### 3.2 Inference using fine-tuned LLaMA-7B
