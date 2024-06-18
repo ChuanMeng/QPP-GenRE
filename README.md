@@ -109,7 +109,7 @@ python -u judge_relevance.py \
 --checkpoint_name msmarco-v1-passage-dev-small.original-bm25-1000.original-Meta-Llama-3-8B-neg2-top1000/checkpoint-5350 \
 --query_path ./datasets/msmarco-v1-passage/queries/dl-19-passage.queries-original.tsv \
 --run_path ./datasets/msmarco-v1-passage/runs/dl-19-passage.run-original-bm25-1000.txt \
---index_path /gpfs/work3/0/guse0654/cache/index/lucene-index.msmarco-v1-passage-full.20221004.252b5e \
+--index_path ./datasets/msmarco-v1-passage/lucene-index.msmarco-v1-passage-full.20221004.252b5e \
 --qrels_path ./datasets/msmarco-v1-passage/qrels/dl-19-passage.qrels.txt  \
 --output_dir ./output/ \
 --batch_size 32 \
@@ -131,7 +131,7 @@ python -u judge_relevance.py \
 --checkpoint_name msmarco-v1-passage-dev-small.original-bm25-1000.original-Meta-Llama-3-8B-Instruct-neg2-top1000/checkpoint-2675 \
 --query_path ./datasets/msmarco-v1-passage/queries/dl-19-passage.queries-original.tsv \
 --run_path ./datasets/msmarco-v1-passage/runs/dl-19-passage.run-original-bm25-1000.txt \
---index_path /gpfs/work3/0/guse0654/cache/index/lucene-index.msmarco-v1-passage-full.20221004.252b5e \
+--index_path ./datasets/msmarco-v1-passage/lucene-index.msmarco-v1-passage-full.20221004.252b5e \
 --qrels_path ./datasets/msmarco-v1-passage/qrels/dl-19-passage.qrels.txt  \
 --output_dir ./output/ \
 --batch_size 32 \
@@ -177,7 +177,7 @@ python -u judge_relevance.py \
 --checkpoint_name msmarco-v1-passage-dev-small.original-bm25-1000.original-Meta-Llama-3-8B-neg2-top1000/checkpoint-5350 \
 --query_path ./datasets/msmarco-v1-passage/queries/dl-20-passage.queries-original.tsv \
 --run_path ./datasets/msmarco-v1-passage/runs/dl-20-passage.run-original-bm25-1000.txt \
---index_path /gpfs/work3/0/guse0654/cache/index/lucene-index.msmarco-v1-passage-full.20221004.252b5e \
+--index_path ./datasets/msmarco-v1-passage/lucene-index.msmarco-v1-passage-full.20221004.252b5e \
 --qrels_path ./datasets/msmarco-v1-passage/qrels/dl-20-passage.qrels.txt  \
 --output_dir ./output/ \
 --batch_size 32 \
@@ -199,7 +199,7 @@ python -u judge_relevance.py \
 --checkpoint_name msmarco-v1-passage-dev-small.original-bm25-1000.original-Meta-Llama-3-8B-Instruct-neg2-top1000/checkpoint-2675 \
 --query_path ./datasets/msmarco-v1-passage/queries/dl-20-passage.queries-original.tsv \
 --run_path ./datasets/msmarco-v1-passage/runs/dl-20-passage.run-original-bm25-1000.txt \
---index_path /gpfs/work3/0/guse0654/cache/index/lucene-index.msmarco-v1-passage-full.20221004.252b5e \
+--index_path ./datasets/msmarco-v1-passage/lucene-index.msmarco-v1-passage-full.20221004.252b5e \
 --qrels_path ./datasets/msmarco-v1-passage/qrels/dl-20-passage.qrels.txt  \
 --output_dir ./output/ \
 --batch_size 32 \
