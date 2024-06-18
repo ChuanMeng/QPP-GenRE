@@ -1083,7 +1083,7 @@ export CACHE_DIR={your cache path that stores the weights of Llama 3}
 #### Download the checkpoints of fine-tuned Llama-3-8B and Llama-3-8B-Instruct
 For the reproducibility of the results reported in the paper, please download the checkpoints of our fine-tuned 
 - [Llama-3-8B](https://drive.google.com/file/d/1nIS0BAobwo71EZiC9eBNCqWG7SVjXC_J/view?usp=share_link),
-- [Llama-3-8B-Instruct](https://drive.google.com/file/d/1-aJXKLRNw0zGRD34nM3YwqHPo1fA1IzK/view?usp=share_link)
+- [Llama-3-8B-Instruct](https://drive.google.com/file/d/1-aJXKLRNw0zGRD34nM3YwqHPo1fA1IzK/view?usp=share_link).
 
 After downloading, please unzip them in a new directory `./checkpoint/`.
 
