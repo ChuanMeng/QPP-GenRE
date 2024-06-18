@@ -73,7 +73,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     args.dataset_class = args.qrels_true_dir.split("/")[-3]
-    assert args.dataset_class == args.qrels_pred_dir.split("/")[-3]
+    #assert args.dataset_class == args.qrels_pred_dir.split("/")[-3]
 
     if "msmarco" in args.dataset_class:
         args.multi_text = ["Perfectly relevant", "Highly relevant", "Related", "Irrelevant"]

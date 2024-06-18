@@ -11,6 +11,7 @@ import json
 import os
 import tqdm
 import random
+import copy
 
 import pytrec_eval
 from pyserini.search.lucene import LuceneSearcher
@@ -26,10 +27,12 @@ def parser_binary(text):
         return "1" if text =="Relevant" else "0"
 
     print(f"Parsing:***********\nOriginal text:\n{text}\n")
-    if "Irrelevant" in text or "Ir" in text:
+    if "Relevant" in text:
+        text_ = "1"
+    elif "Irrelevant" in text or "Ir" in text:
         text_ = "0"
     else:
-        text_ = "1"
+        text_ = "0"
     print(f"Parsed text:\n{text_}\n***********\n")
     return text_
 
@@ -53,7 +56,7 @@ class Prompter:
         self.args=args
         if self.args.prompt == "binary":
             self.template ="Instruction: Please assess the relevance of the provided passage to the following question. Please output \"Relevant\" or \"Irrelevant\".\n{demonstrations}Question: {question}\nPassage: {passage}\nOutput:"
-            self.spliter="Output: "
+            self.spliter="Output:"
             self.pos_label ="Relevant"
             self.neg_label="Irrelevant"
             self.demonstration="Question: {question}\nPassage: {passage}\nOutput: {output}\n"
@@ -99,23 +102,6 @@ class SavePeftModelCallback(transformers.TrainerCallback):
         self.save_model(args, state, kwargs)
 
 def load_qpp_data(args):
-    query = {}
-    query_reader = open(args.query_path, 'r').readlines()
-    for line in query_reader:
-        qid, qtext = line.split('\t')
-        query[qid] = qtext.replace("\t", "").replace("\n", "").replace("\r", "")
-
-    searcher = LuceneSearcher(args.index_path)
-
-    with open(args.run_path, 'r') as f_run:
-        run = pytrec_eval.parse_run(f_run)
-
-    with open(args.qrels_path, 'r') as f_qrels:
-        qrels = pytrec_eval.parse_qrel(f_qrels)
-
-    examples = []
-    pos_num=0
-    neg_num=0
 
     if args.query_demon_path is not None:
         query_demon = {}
@@ -149,7 +135,8 @@ def load_qpp_data(args):
                 passage_text = passage_dict['contents'] if 'contents' in passage_dict else passage_dict['passage']
                 passage_text = passage_text.replace("\t", " ").replace("\n", " ").replace("\r", " ")
 
-                demonstration+= DEMONSTRATION.format(question=qtext, passage=passage_text, output=POS_LABEL)
+
+                demonstration+= args.prompter.demonstration.format(question=qtext, passage=passage_text, output=args.prompter.pos_label)
                 # one query only has one positive passage
                 break
 
@@ -158,7 +145,7 @@ def load_qpp_data(args):
                 if pid in pid_list:
                     pid_list.remove(pid)
 
-            if len(pid_list) < args.num_negs:
+            if len(pid_list) < args.num_demon_per_class:
                 print(qid, qrels[qid], pid_list)
                 continue
 
@@ -169,14 +156,34 @@ def load_qpp_data(args):
                 passage_text = passage_dict['contents'] if 'contents' in passage_dict else passage_dict['passage']
                 passage_text = passage_text.replace("\t", " ").replace("\n", " ").replace("\r", " ")
 
-            demonstration+= DEMONSTRATION.format(question=qtext, passage=passage_text, output=NEG_LABEL)
+            demonstration+= args.prompter.demonstration.format(question=qtext, passage=passage_text, output=args.prompter.neg_label)
 
             demonstration_list.append(demonstration)
 
         demonstration_list_sampled = random.sample(demonstration_list, args.num_demon_per_class)
         demonstrations = "".join(demonstration_list_sampled)
 
-    print(f"demonstrations:\n{demonstrations}")
+        print(f"demonstrations:\n{demonstrations}")
+
+
+    query = {}
+    query_reader = open(args.query_path, 'r').readlines()
+    for line in query_reader:
+        qid, qtext = line.split('\t')
+        query[qid] = qtext.replace("\t", "").replace("\n", "").replace("\r", "")
+
+    searcher = LuceneSearcher(args.index_path)
+
+    with open(args.run_path, 'r') as f_run:
+        run = pytrec_eval.parse_run(f_run)
+
+    with open(args.qrels_path, 'r') as f_qrels:
+        qrels = pytrec_eval.parse_qrel(f_qrels)
+
+    examples = []
+    pos_num=0
+    neg_num=0
+
 
     for qid, qtext in query.items():
         if qid not in qrels:
@@ -188,22 +195,25 @@ def load_qpp_data(args):
             for idx, pid in enumerate(pid_list[:args.k]):
                 example = {}
                 example["example_id"] = f"{qid}#{idx + 1}#{pid}"
+
+                #print(qid, pid)
+                #print(searcher.doc(pid))
                 passage_dict = json.loads(searcher.doc(pid).raw())
                 passage_text = passage_dict['contents'] if 'contents' in passage_dict else passage_dict['passage']
                 passage_text = passage_text.replace("\t", " ").replace("\n", " ").replace("\r", " ")
 
                 if args.query_demon_path is not None:
-                    example["input"] = TEMPLATE.format(demonstrations=demonstrations, question=qtext,passage=passage_text[:args.max_char_len])
+                    example["input"] = args.prompter.template.format(demonstrations=demonstrations, question=qtext,passage=passage_text[:args.max_char_len])
                 else:
-                    example["input"] = TEMPLATE.format(demonstrations=None, question=qtext,passage=passage_text[:args.max_char_len])
+                    example["input"] = args.prompter.template.format(demonstrations="", question=qtext,passage=passage_text[:args.max_char_len])
 
                 rel_grade = qrels[qid][pid] if pid in qrels[qid] else 0
 
                 if rel_grade >=2:
-                    example["output"] = POS_LABEL
+                    example["output"] = args.prompter.pos_label
                     pos_num += 1
                 else:
-                    example["output"] = NEG_LABEL
+                    example["output"] = args.prompter.neg_label
                     neg_num += 1
                 examples.append(example)
         else:
@@ -218,39 +228,113 @@ def load_qpp_data(args):
                 passage_text = passage_dict['contents'] if 'contents' in passage_dict else passage_dict['passage']
                 passage_text = passage_text.replace("\t", " ").replace("\n", " ").replace("\r", " ")
 
-                example["input"] = TEMPLATE.format(question=qtext,passage=passage_text)
-
-                example["output"] = POS_LABEL
+                example["input"] = args.prompter.template.format(demonstrations="", question=qtext,passage=passage_text)
+                example["output"] = args.prompter.pos_label
                 examples.append(example)
                 pos_num += 1
 
+            # negative sampling
+            pid_list_ = copy.deepcopy(pid_list)
+
             for pid in qrels[qid]:
-                if pid in pid_list:
-                    pid_list.remove(pid)
+                if pid in pid_list_:
+                    pid_list_.remove(pid)
 
             if len(pid_list)<args.num_negs:
-                print(qid, qrels[qid], pid_list)
+                print(f"Skip sampling negatives for {qid} because it has insufficient negatives:\n{qrels[qid]}, {run[qid]}, {pid_list_}")
                 continue
 
-            neg_pid_list = random.sample(pid_list, args.num_negs)
+
+            pid_list__ = pid_list_[:args.neg_top]
+
+            neg_pid_list = random.sample(pid_list__, args.num_negs)
 
             for pid in neg_pid_list:
                 #negative examples
+                example = {}
                 example["example_id"] = f"{qid}#neg#{pid}"
+
                 passage_dict = json.loads(searcher.doc(pid).raw())
                 passage_text = passage_dict['contents'] if 'contents' in passage_dict else passage_dict['passage']
                 passage_text = passage_text.replace("\t", " ").replace("\n", " ").replace("\r", " ")
 
-                example["input"] = TEMPLATE.format(question=qtext, passage=passage_text)
-                example["output"] = NEG_LABEL
+                example["input"] = args.prompter.template.format(demonstrations="", question=qtext, passage=passage_text)
+                example["output"] = args.prompter.neg_label
+                examples.append(example)
                 neg_num+=1
 
+    assert len(examples)==(pos_num+neg_num), print("len(examples): ", len(examples))
 
     print(f"pos_num: {pos_num}, neg_num: {neg_num}")
-    print("sanity check: {}\n{}\n".format(examples[0]["input"],examples[-1]["input"]))
+    print("sanity check:\n{} {}\n\n{} {}\n".format(examples[0]["input"],examples[0]["output"], examples[-1]["input"], examples[-1]["output"]))
     return examples
 
 def load_rj_data(args):
+
+    if args.query_demon_path is not None:
+        query_demon = {}
+        query_reader = open(args.query_demon_path, 'r').readlines()
+        for line in query_reader:
+            qid, qtext = line.split('\t')
+            query_demon[qid] = qtext.replace("\t", "").replace("\n", "").replace("\r", "")
+
+        searcher_demon = LuceneSearcher(args.index_demon_path)
+
+        with open(args.run_demon_path, 'r') as f_run:
+            run_demon = pytrec_eval.parse_run(f_run)
+
+        with open(args.qrels_demon_path, 'r') as f_qrels:
+            qrels_demon  = pytrec_eval.parse_qrel(f_qrels)
+
+        # postive examples
+        demonstration_list = []
+
+        for qid, qtext in query_demon.items():
+            if qid not in qrels_demon:
+                continue
+
+            demonstration=""
+
+            pid_list = [pid for (pid, score) in sorted(run_demon[qid].items(), key=lambda x: x[1], reverse=True)]
+
+            # sample one positive example
+            for pid in qrels_demon[qid]:
+                passage_dict = json.loads(searcher_demon.doc(pid).raw())
+                passage_text = passage_dict['contents'] if 'contents' in passage_dict else passage_dict['passage']
+                passage_text = passage_text.replace("\t", " ").replace("\n", " ").replace("\r", " ")
+
+
+                demonstration+= args.prompter.demonstration.format(question=qtext, passage=passage_text, output=args.prompter.pos_label)
+                # one query only has one positive passage
+                break
+
+            # sample a negative
+            for pid in qrels_demon[qid]:
+                if pid in pid_list:
+                    pid_list.remove(pid)
+
+            if len(pid_list) < args.num_demon_per_class:
+                print(qid, qrels[qid], pid_list)
+                continue
+
+            # one query only has one negative passage
+            neg_pids = random.sample(pid_list, 1)
+
+            # 1
+            for pid in neg_pids:
+                passage_dict = json.loads(searcher_demon.doc(pid).raw())
+                passage_text = passage_dict['contents'] if 'contents' in passage_dict else passage_dict['passage']
+                passage_text = passage_text.replace("\t", " ").replace("\n", " ").replace("\r", " ")
+
+            demonstration+= args.prompter.demonstration.format(question=qtext, passage=passage_text, output=args.prompter.neg_label)
+
+            demonstration_list.append(demonstration)
+
+        demonstration_list_sampled = random.sample(demonstration_list, args.num_demon_per_class)
+        demonstrations = "".join(demonstration_list_sampled)
+
+        print(f"demonstrations:\n{demonstrations}")
+
     query = {}
     query_reader = open(args.query_path, 'r').readlines()
     for line in query_reader:
@@ -290,7 +374,11 @@ def load_rj_data(args):
                 passage_text = passage_dict['contents'] if 'contents' in passage_dict else passage_dict['passage']
                 passage_text = passage_text.replace("\t", " ").replace("\n", " ").replace("\r", " ")
 
-                example["input"] = args.prompter.template.format(demonstrations="", question=query[qid],passage=passage_text[:args.max_char_len])
+                if args.query_demon_path is not None:
+                    example["input"] = args.prompter.template.format(demonstrations=demonstrations, question=query[qid],passage=passage_text[:args.max_char_len])
+                else:
+                    example["input"] = args.prompter.template.format(demonstrations="", question=query[qid],passage=passage_text[:args.max_char_len])
+
 
                 if rel >= 2:
                     example["output"] = args.prompter.pos_label
@@ -322,10 +410,11 @@ def load_rj_data(args):
             else:
                 count[example["output"]]+=1
 
-            print(example["input"],"\n")
+            #print(example["input"],"\n")
 
             examples.append(example)
 
+    print("sanity check:\n{} {}\n\n{} {}\n".format(examples[0]["input"], examples[0]["output"], examples[-1]["input"], examples[-1]["output"]))
     print(count)
     return examples
 
@@ -358,6 +447,7 @@ def find_all_linear_names(model):
 
 
 def train(args):
+
     device_map = "auto"
     world_size = int(os.environ.get("WORLD_SIZE", 1))
     ddp = world_size != 1
@@ -636,12 +726,13 @@ if __name__ == '__main__':
     parser.add_argument("--per_device_train_batch_size", type=int, default=32)
     parser.add_argument("--logging_steps", type=int, default=10)
 
-    parser.add_argument("--lora_r", type=int, default=64)  # [64, 16, 8]
+    parser.add_argument("--lora_r", type=int, default=64)  # [64, 16, 8]  # 256？
     parser.add_argument("--lora_alpha", type=int, default=16) # [32, 16]
     parser.add_argument("--lora_dropout", type=float, default=0.1)
 
     parser.add_argument("--num_demon_per_class", type=int, default=1)
-    parser.add_argument("--num_negs", type=int, default=1)
+    parser.add_argument("--num_negs", type=int, default=None)
+    parser.add_argument("--neg_top", type=int, default=1000)
     parser.add_argument("--k", type=int, default=None)
 
     args = parser.parse_args()
@@ -671,15 +762,23 @@ if __name__ == '__main__':
         else:
             # in-context learning (few-shot) or zero-shot
             if args.rj:
-                args.setup = f"{args.qrels_name}.{args.base_model}"
-            elif args.query_demon_path is not None:
-                dataset_name_demon = args.query_demon_path.split("/")[-1].split(".")[0]
-                retriever_demon = "-".join(args.run_demon_path.split("/")[-1].split(".")[1].split("-")[1:])
-                setup_demon=f"{dataset_name_demon}.{retriever_demon}-demon{args.num_demon_per_class}"
+                if args.query_demon_path is not None:
+                    dataset_name_demon = args.query_demon_path.split("/")[-1].split(".")[0]
+                    retriever_demon = "-".join(args.run_demon_path.split("/")[-1].split(".")[1].split("-")[1:])
+                    setup_demon=f"{dataset_name_demon}.{retriever_demon}-demon{args.num_demon_per_class}"
 
-                args.setup = f"{args.dataset_name}.{args.retriever}.{args.query_type}-{args.base_model}-icl-{setup_demon}"
+                    args.setup = f"{args.qrels_name}.{args.query_type}-{args.base_model}-icl-{setup_demon}"
+                else:
+                    args.setup = f"{args.qrels_name}.{args.query_type}-{args.base_model}"
             else:
-                args.setup = f"{args.dataset_name}.{args.retriever}.{args.query_type}-{args.base_model}"
+                if args.query_demon_path is not None:
+                    dataset_name_demon = args.query_demon_path.split("/")[-1].split(".")[0]
+                    retriever_demon = "-".join(args.run_demon_path.split("/")[-1].split(".")[1].split("-")[1:])
+                    setup_demon=f"{dataset_name_demon}.{retriever_demon}-demon{args.num_demon_per_class}"
+
+                    args.setup = f"{args.dataset_name}.{args.retriever}.{args.query_type}-{args.base_model}-icl-{setup_demon}"
+                else:
+                    args.setup = f"{args.dataset_name}.{args.retriever}.{args.query_type}-{args.base_model}"
 
 
         if not os.path.exists(args.output_dir):
@@ -693,7 +792,7 @@ if __name__ == '__main__':
         if args.rj:
             args.setup = f"{args.qrels_name}.{args.base_model}"
         else:
-            args.setup = f"{args.dataset_name}.{args.retriever}.{args.query_type}-{args.base_model}-neg{args.num_negs}"
+            args.setup = f"{args.dataset_name}.{args.retriever}.{args.query_type}-{args.base_model}-neg{args.num_negs}-top{args.neg_top}"
 
         args.checkpoint_path_ = f"{args.checkpoint_path}/{args.setup}/"
 
