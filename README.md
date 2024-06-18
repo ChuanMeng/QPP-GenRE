@@ -399,8 +399,11 @@ Run the following command to fine-tune quantized 4-bit LaMA-7B using [QLoRA](htt
 For each query in the development set of MS MARCO V1, we use the relevant passages shown in the qrels file, while we randomly sample a negative passage from the ranked list (1000 items) returned by BM25. 
 The checkpoints will be saved to `./checkpoint/` for each epoch.
 ```bash
+# LLaMA-7B
 python -u judge_relevance.py \
 --model_name_or_path ${LLAMA_7B_PATH} \
+--token ${TOKEN} \
+--cache_dir ${CACHE_DIR} \
 --checkpoint_path ./checkpoint/ \
 --query_path ./datasets/msmarco-v1-passage/queries/msmarco-v1-passage-dev-small.queries-original.tsv \
 --run_path ./datasets/msmarco-v1-passage/runs/msmarco-v1-passage-dev-small.run-original-bm25-1000.txt \
@@ -409,7 +412,43 @@ python -u judge_relevance.py \
 --logging_steps 10 \
 --per_device_train_batch_size 64 \
 --num_epochs 5 \
---num_negs 1 
+--num_negs 1 \
+--neg_top 1000 \
+--prompt binary
+
+# Llama-3-8B
+python -u judge_relevance.py \
+--model_name_or_path "meta-llama/Meta-Llama-3-8B" \
+--token ${TOKEN} \
+--cache_dir ${CACHE_DIR} \
+--checkpoint_path ./checkpoint/ \
+--query_path ./datasets/msmarco-v1-passage/queries/msmarco-v1-passage-dev-small.queries-original.tsv \
+--run_path ./datasets/msmarco-v1-passage/runs/msmarco-v1-passage-dev-small.run-original-bm25-1000.txt \
+--index_path ./datasets/msmarco-v1-passage/lucene-index.msmarco-v1-passage-full.20221004.252b5e \
+--qrels_path ./datasets/msmarco-v1-passage/qrels/msmarco-v1-passage-dev-small.qrels.tsv \
+--logging_steps 10 \
+--per_device_train_batch_size 64 \
+--num_epochs 5 \
+--num_negs 2 \
+--neg_top 1000 \
+--prompt binary
+
+# Llama-3-8B-Instruct
+python -u judge_relevance.py \
+--model_name_or_path "meta-llama/Meta-Llama-3-8B-Instruct" \
+--token ${TOKEN} \
+--cache_dir ${CACHE_DIR} \
+--checkpoint_path ./checkpoint/ \
+--query_path ./datasets/msmarco-v1-passage/queries/msmarco-v1-passage-dev-small.queries-original.tsv \
+--run_path ./datasets/msmarco-v1-passage/runs/msmarco-v1-passage-dev-small.run-original-bm25-1000.txt \
+--index_path ./datasets/msmarco-v1-passage/lucene-index.msmarco-v1-passage-full.20221004.252b5e \
+--qrels_path ./datasets/msmarco-v1-passage/qrels/msmarco-v1-passage-dev-small.qrels.tsv \
+--logging_steps 10 \
+--per_device_train_batch_size 64 \
+--num_epochs 10 \
+--num_negs 2 \
+--neg_top 1000 \
+--prompt binary
 ```
 > [!NOTE]
 > Fine-tuning LLaMA-7B, Llama-3-8B and Llama-3-8B-Instruct using QLoRA for 5 epochs on the development set of MS MARCO V1 takes about an hour and a half on an NVIDIA A100 GPU.
