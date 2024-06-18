@@ -49,12 +49,19 @@ wget -P ./datasets/msmarco-v2-passage/ https://rgw.cs.uwaterloo.ca/pyserini/inde
 tar -zxvf  ./datasets/msmarco-v2-passage/lucene-index.msmarco-v2-passage-full.20220808.4d6d2a.tar.gz -C ./datasets/msmarco-v2-passage/
 ```
 
-#### Fetch the original weights of LLaMA-7B
-Please refer to the LLaMA [repository](https://github.com/facebookresearch/llama/tree/llama_v1) to fetch the original weights of LLaMA-7B.
+#### Fetch the original weights of LLaMA-7B, Llama-3-8B and Llama-3-8B-Instruct
+
+For LLaMA-7B, please refer to the LLaMA [repository](https://github.com/facebookresearch/llama/tree/llama_v1) to fetch the original weights of LLaMA-7B.
 And then, please follow the instructions from [here](https://huggingface.co/docs/transformers/main/model_doc/llama) to convert the original weights for the LLaMA-7B model to the Hugging Face Transformers format. 
 Next, set your local path to the weights of LLaMA-7B (Hugging Face Transformers format) as an environment variable, which will be used in the following process.
 ```bash
 export LLAMA_7B_PATH={your path to the weights of LLaMA-7B (Hugging Face Transformers format)}
+```
+
+For Llama-3-8B and Llama-3-8B-Instruct, we can directly fetch weights from Hugging Face. Please set your own token and your cache directory:
+```bash
+export TOKEN={your token}
+export CACHE_DIR={your cache dir}
 ```
 
 #### Download the checkpoints of fine-tuned LLaMA-7B, Llama-3-8B and Llama-3-8B-Instruct
@@ -64,31 +71,76 @@ Please download `checkpoint.zip` from [here](https://drive.google.com/file/d/1u_
 > [!NOTE]
 > We leverage 4-bit quantized LLaMA-7B for either inference or fine-tuning in this paper; we use an NVIDIA A100 Tensor Core GPU (40GB) to conduct all experiments in our paper.
 
-
 ### 🚀 2.2 Inference using fine-tuned LLaMA-7B, Llama-3-8B and Llama-3-8B-Instruct
-The part shows how to directly use our released checkpoints of fine-tuned LLaMA-7B to predict the performance of BM25 and ANCE on TREC-DL 19, 20, 21 and 22 datasets.
+The part shows how to directly use our released checkpoints of fine-tuned LLaMA-7B, Llama-3-8B and Llama-3-8B-Instruct to predict the performance of BM25 and ANCE on TREC-DL 19, 20, 21 and 22 datasets.
 Please run `judge_relevance.py` and `predict_measures.py` sequentially to finish one prediction for one ranker on one dataset.
 Specifically, `judge_relevance.py` aims to automatically generate relevance judgments for a ranked list returned by BM25 or ANCE; the generated relevance judgments are saved to `./output/`. 
 `predict_measures.py` is used to compute different IR evaluation measures, such as RR@10 and nDCG@10, based on the generated relevance judgments (pseudo labels); the computed values of an IR evaluation metric are regarded as predicted QPP scores that are expected to approximate the actual values of the IR evaluation metric; predicted QPP scores for a dataset will be saved to a folder that corresponds to the dataset, e.g., QPP scores for BM25 or ANCE on TREC-DL 19 will be saved to `./output/dl-19-passage`.
 
 #### Predicting the performance of BM25 on TREC-DL 19 
 ```bash
+# LLaMA-7B
 python -u judge_relevance.py \
 --model_name_or_path ${LLAMA_7B_PATH} \
+--token ${TOKEN} \
+--cache_dir ${CACHE_DIR} \
 --checkpoint_path ./checkpoint/ \
---checkpoint_name msmarco-v1-passage-dev-small.original-bm25-1000.original-llama-1-7b-hf-neg1/checkpoint-2790 \
+--checkpoint_name msmarco-v1-passage-dev-small.original-bm25-1000.original-llama-1-7b-hf-neg1-top1000/checkpoint-2790 \
 --query_path ./datasets/msmarco-v1-passage/queries/dl-19-passage.queries-original.tsv \
 --run_path ./datasets/msmarco-v1-passage/runs/dl-19-passage.run-original-bm25-1000.txt \
 --index_path ./datasets/msmarco-v1-passage/lucene-index.msmarco-v1-passage-full.20221004.252b5e \
---qrels_path ./datasets/msmarco-v1-passage/qrels/dl-19-passage.qrels.txt  \
+--qrels_path ./datasets/msmarco-v1-passage/qrels/dl-19-passage.qrels.txt \
 --output_dir ./output/ \
 --batch_size 32 \
---infer
+--infer --prompt binary
 
 python -u predict_measures.py \
 --run_path ./datasets/msmarco-v1-passage/runs/dl-19-passage.run-original-bm25-1000.txt \
---qrels_path  ./output/dl-19-passage.original-bm25-1000.original-llama-1-7b-hf-ckpt-msmarco-v1-passage-dev-small.original-bm25-1000.original-llama-1-7b-hf-neg1-checkpoint-2790.k1000 \
---output_path ./output/dl-19-passage
+--qrels_path  ./output/dl-19-passage.original-bm25-1000.original-llama-1-7b-hf-ckpt-msmarco-v1-passage-dev-small.original-bm25-1000.original-llama-1-7b-hf-neg1-top1000-checkpoint-2790.k1000 \
+--output_path ./output/dl-19-passage \
+--n 10 100 200 500 1000
+
+# Llama-3-8B
+python -u judge_relevance.py \
+--model_name_or_path "meta-llama/Meta-Llama-3-8B"  \
+--checkpoint_path ./checkpoint/ \
+--checkpoint_name msmarco-v1-passage-dev-small.original-bm25-1000.original-Meta-Llama-3-8B-neg2-top1000/checkpoint-${ckpt} \
+--query_path ./datasets/msmarco-v1-passage/queries/dl-19-passage.queries-original.tsv \
+--run_path ./datasets/msmarco-v1-passage/runs/dl-19-passage.run-original-bm25-1000.txt \
+--index_path /gpfs/work3/0/guse0654/cache/index/lucene-index.msmarco-v1-passage-full.20221004.252b5e \
+--qrels_path ./datasets/msmarco-v1-passage/qrels/dl-19-passage.qrels.txt  \
+--output_dir ./output/ \
+--batch_size 32 \
+--k 1000 \
+--infer --prompt binary
+
+python -u predict_measures.py \
+--run_path ./datasets/msmarco-v1-passage/runs/dl-19-passage.run-original-bm25-1000.txt \
+--qrels_path  ./output/dl-19-passage.original-bm25-1000.original-Meta-Llama-3-8B-ckpt-msmarco-v1-passage-dev-small.original-bm25-1000.original-Meta-Llama-3-8B-neg2-top1000-checkpoint-5350.k1000 \
+--output_path ./output/dl-19-passage \
+--n 10 100 200 500 1000
+
+# Llama-3-8B-Instruct
+python -u judge_relevance.py \
+--model_name_or_path "meta-llama/Meta-Llama-3-8B-Instruct" \
+--token ${TOKEN} \
+--cache_dir ${CACHE_DIR} \
+--checkpoint_path ./checkpoint/ \
+--checkpoint_name msmarco-v1-passage-dev-small.original-bm25-1000.original-Meta-Llama-3-8B-Instruct-neg2-top1000/checkpoint-2675 \
+--query_path ./datasets/msmarco-v1-passage/queries/dl-19-passage.queries-original.tsv \
+--run_path ./datasets/msmarco-v1-passage/runs/dl-19-passage.run-original-bm25-1000.txt \
+--index_path /gpfs/work3/0/guse0654/cache/index/lucene-index.msmarco-v1-passage-full.20221004.252b5e \
+--qrels_path ./datasets/msmarco-v1-passage/qrels/dl-19-passage.qrels.txt  \
+--output_dir ./output/ \
+--batch_size 32 \
+--k 1000 \
+--infer --prompt binary
+
+python -u predict_measures.py \
+--run_path ./datasets/msmarco-v1-passage/runs/dl-19-passage.run-original-bm25-1000.txt \
+--qrels_path  ./output/dl-19-passage.original-bm25-1000.original-Meta-Llama-3-8B-Instruct-ckpt-msmarco-v1-passage-dev-small.original-bm25-1000.original-Meta-Llama-3-8B-Instruct-neg2-top1000-checkpoint-2675.k1000 \
+--output_path ./output/dl-19-passage \
+--n 10 100 200 500 1000
 ```
 
 #### Predicting the performance of BM25 on TREC-DL 20 
