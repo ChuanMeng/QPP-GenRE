@@ -49,7 +49,7 @@ wget -P ./datasets/msmarco-v2-passage/ https://rgw.cs.uwaterloo.ca/pyserini/inde
 tar -zxvf  ./datasets/msmarco-v2-passage/lucene-index.msmarco-v2-passage-full.20220808.4d6d2a.tar.gz -C ./datasets/msmarco-v2-passage/
 ```
 
-#### Fetch the original weights of LLaMA-7B
+#### Fetch the original weights of LLaMA-7B, Llama-3-8B and Llama-3-8B-Instruct
 Please refer to the LLaMA [repository](https://github.com/facebookresearch/llama/tree/llama_v1) to fetch the original weights of LLaMA-7B.
 And then, please follow the instructions from [here](https://huggingface.co/docs/transformers/main/model_doc/llama) to convert the original weights for the LLaMA-7B model to the Hugging Face Transformers format. 
 Next, set your local path to the weights of LLaMA-7B (Hugging Face Transformers format) as an environment variable, which will be used in the following process.
@@ -190,7 +190,7 @@ python -u predict_measures.py \
 --output_path ./output/dl-20-passage
 ```
 
-### 🛠️ 2.3 Fine-tuning LLaMA
+### 🛠️ 2.3 Fine-tuning LLaMA-7B, Llama-3-8B and Llama-3-8B-Instruct
 Run the following command to fine-tune quantized 4-bit LaMA-7B using [QLoRA](https://github.com/artidoro/qlora) on the task of judging the relevance of a passage to a given query, on the development set of MS MARCO V1.
 For each query in the development set of MS MARCO V1, we use the relevant passages shown in the qrels file, while we randomly sample a negative passage from the ranked list (1000 items) returned by BM25. 
 The checkpoints will be saved to `./checkpoint/` for each epoch.
@@ -210,7 +210,7 @@ python -u judge_relevance.py \
 > [!NOTE]
 > Fine-tuning LLaMA-7B using QLoRA for 5 epochs on the development set of MS MARCO V1 takes about an hour and a half on an NVIDIA A100 GPU.
 
-### 🛞 2.4 In-context learning using LLaMA
+### 🛞 2.4 In-context learning using LLaMA-7B, Llama-3-8B and Llama-3-8B-Instruct
 In the setting of in-context learning, we freeze the parameters of LLaMA.
 We randomly sample several human-labeled demonstration examples (each demonstration example is in the format of "<query, passage, relevant/irrelevant>") from the development set of MS MARCO V1 (the same set used for fine-tuning LLaMA in the previous part), and insert these sampled demonstration examples into the input of LLaMA-7B with original weights. 
 We randomly sample four demonstration examples, where two examples have passages that are labeled as relevant (<query, passage, relevant>) while the other two examples have irrelevant passages (<query, passage, irrelevant>); our preliminary experiments show that four demonstration examples work best and so we stick with this setting.
