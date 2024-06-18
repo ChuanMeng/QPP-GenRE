@@ -60,8 +60,8 @@ export LLAMA_7B_PATH={your path to the weights of LLaMA-7B (Hugging Face Transfo
 
 For Llama-3-8B and Llama-3-8B-Instruct, we can directly fetch weights from Hugging Face. Please set your own token and your cache directory:
 ```bash
-export TOKEN={your token}
-export CACHE_DIR={your cache dir}
+export TOKEN={your token to use as HTTP bearer authorization for remote files}
+export CACHE_DIR={your cache path that stores the weights of Llama 3}
 ```
 
 #### Download the checkpoints of fine-tuned LLaMA-7B, Llama-3-8B and Llama-3-8B-Instruct
@@ -1177,7 +1177,7 @@ python -u prepcrocessing.py \
 One can directly fetch the original weights of Llama 3.
 Please set the following variables:
 ```bash
-export TOKEN_PATH={your token to use as HTTP bearer authorization for remote files}
+export TOKEN={your token to use as HTTP bearer authorization for remote files}
 export CACHE_DIR={your cache path that stores the weights of Llama 3}
 ```
 
@@ -1197,7 +1197,7 @@ python -u judge_relevance.py \
 --index_path ./datasets/ikat/corpus/ikat.corpus \
 --qrels_path ./datasets/ikat/qrels/ikat-test.qrels \
 --output_dir ./output \
---token ${TOKEN_PATH} \
+--token ${TOKEN} \
 --cache_dir ${CACHE_DIR} \
 --batch_size 16 \
 --infer --rj --prompt binary
@@ -1212,7 +1212,7 @@ python -u judge_relevance.py \
 --index_path ./datasets/ikat/corpus/ikat.corpus \
 --qrels_path ./datasets/ikat/qrels/ikat.qrels \
 --output_dir ./output \
---token ${TOKEN_PATH} \
+--token ${TOKEN} \
 --cache_dir ${CACHE_DIR} \
 --batch_size 16 \
 --infer --rj --prompt binary
@@ -1229,7 +1229,7 @@ python -u judge_relevance.py \
 --index_path ./datasets/ikat/corpus/ikat.corpus \
 --qrels_path ./datasets/ikat/qrels/ikat-test.qrels \
 --output_dir ./output/ \
---token ${TOKEN_PATH} \
+--token ${TOKEN} \
 --cache_dir ${CACHE_DIR} \
 --prompt ikat \
 --infer --rj 
@@ -1243,7 +1243,7 @@ python -u judge_relevance.py \
 --index_path ./datasets/ikat/corpus/ikat.corpus \
 --qrels_path ./datasets/ikat/qrels/ikat-test.qrels \
 --output_dir ./output/ \
---token ${TOKEN_PATH} \
+--token ${TOKEN} \
 --cache_dir ${CACHE_DIR} \
 --prompt ikat \
 --infer --rj 
@@ -1257,7 +1257,7 @@ python -u judge_relevance.py \
 --index_path ./datasets/ikat/corpus/ikat.corpus \
 --qrels_path ./datasets/ikat/qrels/ikat.qrels \
 --output_dir ./output/ \
---token ${TOKEN_PATH} \
+--token ${TOKEN} \
 --cache_dir ${CACHE_DIR} \
 --prompt ikat \
 --infer --rj 
@@ -1271,7 +1271,7 @@ python -u judge_relevance.py \
 --index_path ./datasets/ikat/corpus/ikat.corpus \
 --qrels_path ./datasets/ikat/qrels/ikat.qrels \
 --output_dir ./output/ \
---token ${TOKEN_PATH} \
+--token ${TOKEN} \
 --cache_dir ${CACHE_DIR} \
 --prompt ikat \
 --infer --rj 
@@ -1289,7 +1289,7 @@ python -u judge_relevance.py \
 --qrels_path ./datasets/ikat/qrels/ikat-test.qrels \
 --output_dir ./output/ \
 --batch_size 32 \
---token ${TOKEN_PATH} \
+--token ${TOKEN} \
 --cache_dir ${CACHE_DIR} \
 --prompt ikat \
 --infer --rj 
@@ -1306,7 +1306,7 @@ python -u judge_relevance.py \
 --qrels_path ./datasets/ikat/qrels/ikat-test.qrels \
 --output_dir ./output/ \
 --batch_size 32 \
---token ${TOKEN_PATH} \
+--token ${TOKEN} \
 --cache_dir ${CACHE_DIR} \
 --prompt ikat \
 --infer --rj 
@@ -1325,7 +1325,7 @@ python -u judge_relevance.py \
 --logging_steps 10 \
 --per_device_train_batch_size 64 \
 --num_epochs 10 \
---token ${TOKEN_PATH} \
+--token ${TOKEN} \
 --cache_dir ${CACHE_DIR} \
 --prompt ikat \
 --rj 
@@ -1341,7 +1341,7 @@ python -u judge_relevance.py \
 --logging_steps 10 \
 --per_device_train_batch_size 64 \
 --num_epochs 10 \
---token ${TOKEN_PATH} \
+--token ${TOKEN} \
 --cache_dir ${CACHE_DIR} \
 --prompt ikat \
 --rj 
