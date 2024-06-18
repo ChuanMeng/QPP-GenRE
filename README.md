@@ -1173,114 +1173,116 @@ python -u prepcrocessing.py \
 --raw_data_path ./datasets/ikat/raw/splitted_data.txt
 ```
 
-#### Fetch the original weights of Llama 3
-One can directly fetch the original weights of Llama 3.
+#### Fetch the original weights of Llama-3-8B and Llama-3-8B-Instruct
+One can directly fetch the original weights of Llama-3-8B and Llama-3-8B-Instruct.
 Please set the following variables:
 ```bash
 export TOKEN={your token to use as HTTP bearer authorization for remote files}
 export CACHE_DIR={your cache path that stores the weights of Llama 3}
 ```
 
-#### Download the checkpoints of fine-tuned Llama 3
-We release ***the checkpoints of our fine-tuned Llama 3*** for the reproducibility of the results reported in the paper.
+#### Download the checkpoints of fine-tuned Llama-3-8B and Llama-3-8B-Instruct
+We release ***the checkpoints of our fine-tuned Llama-3-8B and Llama-3-8B-Instruct*** for the reproducibility of the results reported in the paper.
 Please download `checkpoint.zip` from [here](https://drive.google.com/file/d/1u_ahOv0KSKwMvO_0yaC7Cx6ky_duS08V/view?usp=share_link), and then unzip it in the current directory.
 
-### 3.2 Inference using fine-tuned LLaMA
+### 3.2 Inference using fine-tuned LLaMA-7B
 ```
 # inference on the test split
 python -u judge_relevance.py \
 --model_name_or_path ${LLAMA_7B_PATH}  \
+--token ${TOKEN} \
+--cache_dir ${CACHE_DIR} \
 --checkpoint_path ./checkpoint/ \
---checkpoint_name msmarco-v1-passage-dev-small.original-bm25-1000.original-llama-1-7b-hf-neg1/checkpoint-1860 \
+--checkpoint_name msmarco-v1-passage-dev-small.original-bm25-1000.original-llama-1-7b-hf-neg1-top1000/checkpoint-1860 \
 --query_path  ./datasets/ikat/queries/ikat.queries-manual \
 --ptkb_path ./datasets/ikat/queries/ikat.ptkb \
 --index_path ./datasets/ikat/corpus/ikat.corpus \
 --qrels_path ./datasets/ikat/qrels/ikat-test.qrels \
 --output_dir ./output \
---token ${TOKEN} \
---cache_dir ${CACHE_DIR} \
 --batch_size 16 \
 --infer --rj --prompt binary
 
 # inference on the whole set
 python -u judge_relevance.py \
 --model_name_or_path ${LLAMA_7B_PATH}  \
+--token ${TOKEN} \
+--cache_dir ${CACHE_DIR} \
 --checkpoint_path ./checkpoint/ \
---checkpoint_name msmarco-v1-passage-dev-small.original-bm25-1000.original-llama-1-7b-hf-neg1/checkpoint-1860 \
+--checkpoint_name msmarco-v1-passage-dev-small.original-bm25-1000.original-llama-1-7b-hf-neg1-top1000/checkpoint-1860 \
 --query_path  ./datasets/ikat/queries/ikat.queries-manual \
 --ptkb_path ./datasets/ikat/queries/ikat.ptkb \
 --index_path ./datasets/ikat/corpus/ikat.corpus \
 --qrels_path ./datasets/ikat/qrels/ikat.qrels \
 --output_dir ./output \
---token ${TOKEN} \
---cache_dir ${CACHE_DIR} \
 --batch_size 16 \
 --infer --rj --prompt binary
 ``` 
 
-### 3.3 Zero-shot prompting using Llama 3 
+### 3.3 Zero-shot prompting using Llama-3-8B and Llama-3-8B-Instruct
 ```
 # inference on the test split (Llama-3-8B)
 python -u judge_relevance.py \
 --model_name_or_path "meta-llama/Meta-Llama-3-8B" \
+--token ${TOKEN} \
+--cache_dir ${CACHE_DIR} \
 --checkpoint_path ./checkpoint/ \
 --query_path ./datasets/ikat/queries/ikat.queries-manual \
 --ptkb_path ./datasets/ikat/queries/ikat.ptkb \
 --index_path ./datasets/ikat/corpus/ikat.corpus \
 --qrels_path ./datasets/ikat/qrels/ikat-test.qrels \
 --output_dir ./output/ \
---token ${TOKEN} \
---cache_dir ${CACHE_DIR} \
 --prompt ikat \
 --infer --rj 
 
 # inference on the test split (Llama-3-8B-Instruct)
 python -u judge_relevance.py \
 --model_name_or_path "meta-llama/Meta-Llama-3-8B-Instruct" \
+--token ${TOKEN} \
+--cache_dir ${CACHE_DIR} \
 --checkpoint_path ./checkpoint/ \
 --query_path ./datasets/ikat/queries/ikat.queries-manual \
 --ptkb_path ./datasets/ikat/queries/ikat.ptkb \
 --index_path ./datasets/ikat/corpus/ikat.corpus \
 --qrels_path ./datasets/ikat/qrels/ikat-test.qrels \
 --output_dir ./output/ \
---token ${TOKEN} \
---cache_dir ${CACHE_DIR} \
 --prompt ikat \
 --infer --rj 
 
 # inference on the whole set (Llama-3-8B)
 python -u judge_relevance.py \
 --model_name_or_path "meta-llama/Meta-Llama-3-8B" \
+--token ${TOKEN} \
+--cache_dir ${CACHE_DIR} \
 --checkpoint_path ./checkpoint/ \
 --query_path ./datasets/ikat/queries/ikat.queries-manual \
 --ptkb_path ./datasets/ikat/queries/ikat.ptkb \
 --index_path ./datasets/ikat/corpus/ikat.corpus \
 --qrels_path ./datasets/ikat/qrels/ikat.qrels \
 --output_dir ./output/ \
---token ${TOKEN} \
---cache_dir ${CACHE_DIR} \
 --prompt ikat \
 --infer --rj 
 
 # inference on the whole set (Llama-3-8B-Instruct)
 python -u judge_relevance.py \
 --model_name_or_path "meta-llama/Meta-Llama-3-8B-Instruct" \
+--token ${TOKEN} \
+--cache_dir ${CACHE_DIR} \
 --checkpoint_path ./checkpoint/ \
 --query_path ./datasets/ikat/queries/ikat.queries-manual \
 --ptkb_path ./datasets/ikat/queries/ikat.ptkb \
 --index_path ./datasets/ikat/corpus/ikat.corpus \
 --qrels_path ./datasets/ikat/qrels/ikat.qrels \
 --output_dir ./output/ \
---token ${TOKEN} \
---cache_dir ${CACHE_DIR} \
 --prompt ikat \
 --infer --rj 
 ``` 
-### 3.4 Inference using fine-tuned Llama 3
+### 3.4 Inference using fine-tuned Llama-3-8B and Llama-3-8B-Instruct
 ```
 # inference on the test split (Llama-3-8B)
 python -u judge_relevance.py \
 --model_name_or_path "meta-llama/Meta-Llama-3-8B" \
+--token ${TOKEN} \
+--cache_dir ${CACHE_DIR} \
 --checkpoint_path ./checkpoint/ \
 --checkpoint_name ikat-train.Meta-Llama-3-8B/checkpoint-3374 \
 --query_path ./datasets/ikat/queries/ikat.queries-manual \
@@ -1289,8 +1291,6 @@ python -u judge_relevance.py \
 --qrels_path ./datasets/ikat/qrels/ikat-test.qrels \
 --output_dir ./output/ \
 --batch_size 32 \
---token ${TOKEN} \
---cache_dir ${CACHE_DIR} \
 --prompt ikat \
 --infer --rj 
 
@@ -1298,6 +1298,8 @@ python -u judge_relevance.py \
 # inference on the test split (Llama-3-8B-Instruct)
 python -u judge_relevance.py \
 --model_name_or_path "meta-llama/Meta-Llama-3-8B-Instruct" \
+--token ${TOKEN} \
+--cache_dir ${CACHE_DIR} \
 --checkpoint_path ./checkpoint/ \
 --checkpoint_name ikat-train.Meta-Llama-3-8B-Instruct/checkpoint-3374 \
 --query_path ./datasets/ikat/queries/ikat.queries-manual \
@@ -1306,17 +1308,17 @@ python -u judge_relevance.py \
 --qrels_path ./datasets/ikat/qrels/ikat-test.qrels \
 --output_dir ./output/ \
 --batch_size 32 \
---token ${TOKEN} \
---cache_dir ${CACHE_DIR} \
 --prompt ikat \
 --infer --rj 
 
 ``` 
-### 3.5 Fine-tuning Llama 3
+### 3.5 Fine-tuning Llama-3-8B and Llama-3-8B-Instruct
 ``` 
 # fine-tune Llama-3-8B on the training split
 python -u judge_relevance.py \
 --model_name_or_path "meta-llama/Meta-Llama-3-8B" \
+--token ${TOKEN} \
+--cache_dir ${CACHE_DIR} \
 --checkpoint_path ./checkpoint/ \
 --query_path ./datasets/ikat/queries/ikat.queries-manual \
 --ptkb_path ./datasets/ikat/queries/ikat.ptkb \
@@ -1325,14 +1327,14 @@ python -u judge_relevance.py \
 --logging_steps 10 \
 --per_device_train_batch_size 64 \
 --num_epochs 10 \
---token ${TOKEN} \
---cache_dir ${CACHE_DIR} \
 --prompt ikat \
 --rj 
 
 # fine-tune Llama-3-8B-Instruct on the training split
 python -u judge_relevance.py \
 --model_name_or_path "meta-llama/Meta-Llama-3-8B-Instruct" \
+--token ${TOKEN} \
+--cache_dir ${CACHE_DIR} \
 --checkpoint_path ./checkpoint/ \
 --query_path ./datasets/ikat/queries/ikat.queries-manual \
 --ptkb_path ./datasets/ikat/queries/ikat.ptkb \
@@ -1341,23 +1343,21 @@ python -u judge_relevance.py \
 --logging_steps 10 \
 --per_device_train_batch_size 64 \
 --num_epochs 10 \
---token ${TOKEN} \
---cache_dir ${CACHE_DIR} \
 --prompt ikat \
 --rj 
 ``` 
 ### 3.6 Evaluation
 ```
-# evaluate fine-tuned LLaMA on the test split
+# evaluate fine-tuned LLaMA-7B on the test split
 python -u evaluate_rj.py \
 --qrels_true_dir /datasets/ikat/qrels/ikat-test.qrels \
---qrels_pred_dir ./output/ikat-test.manual-llama-1-7b-hf-ckpt-msmarco-v1-passage-dev-small.original-bm25-1000.original-llama-1-7b-hf-neg1-checkpoint-1860 \
+--qrels_pred_dir ./output/ikat-test.manual-llama-1-7b-hf-ckpt-msmarco-v1-passage-dev-small.original-bm25-1000.original-llama-1-7b-hf-neg1-top1000-checkpoint-1860 \
 --binary --pre_is_binary
 
-# evaluate fine-tuned LLaMA on the whole set
+# evaluate fine-tuned LLaMA-7B on the whole set
 python -u evaluate_rj.py \
 --qrels_true_dir ./datasets/ikat/qrels/ikat.qrels \
---qrels_pred_dir ./output/ikat.manual-llama-1-7b-hf-ckpt-msmarco-v1-passage-dev-small.original-bm25-1000.original-llama-1-7b-hf-neg1-checkpoint-1860 \
+--qrels_pred_dir ./output/ikat.manual-llama-1-7b-hf-ckpt-msmarco-v1-passage-dev-small.original-bm25-1000.original-llama-1-7b-hf-neg1-top1000-checkpoint-1860 \
 --binary --pre_is_binary
 
 # evaluate Llama-3-8B on the test split
