@@ -65,8 +65,8 @@ export CACHE_DIR={your cache path that stores the weights of Llama 3}
 ```
 
 #### Download the checkpoints of fine-tuned LLaMA-7B, Llama-3-8B and Llama-3-8B-Instruct
-We release ***the checkpoints of our fine-tuned LLaMA-7B*** for the reproducibility of the results reported in the paper.
-Please download `checkpoint.zip` from [here](https://drive.google.com/file/d/1u_ahOv0KSKwMvO_0yaC7Cx6ky_duS08V/view?usp=share_link), and then unzip it in the current directory.
+Please download the checkpoints of our fine-tuned [LLaMA-7B](https://drive.google.com/file/d/1UCoHRhm4n3bYl07eVvLRHmxABuEQknXU/view?usp=share_link), [Llama-3-8B](https://drive.google.com/file/d/1AOw73Um8p-d_MOn9CxNZSe_ufvYXRlgs/view?usp=share_link) and [Llama-3-8B-Instruct](https://drive.google.com/file/d/15VvHS9jV-1J8RwfGJCmaJTNEgaP-5_qC/view?usp=share_link), for the reproducibility of the results reported in the paper.
+After downloading, please unzip them in a new directory `./checkpoint/`.
 
 > [!NOTE]
 > We leverage 4-bit quantized LLaMA-7B for either inference or fine-tuning in this paper; we use an NVIDIA A100 Tensor Core GPU (40GB) to conduct all experiments in our paper.
