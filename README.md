@@ -283,61 +283,115 @@ python -u predict_measures.py \
 
 #### Predicting the performance of BM25 on TREC-DL 22 
 ```bash
+# LLaMA-7B
 python -u judge_relevance.py \
 --model_name_or_path ${LLAMA_7B_PATH} \
+--token ${TOKEN} \
+--cache_dir ${CACHE_DIR} \
 --checkpoint_path ./checkpoint/ \
---checkpoint_name msmarco-v1-passage-dev-small.original-bm25-1000.original-llama-1-7b-hf-neg1/checkpoint-1860 \
+--checkpoint_name msmarco-v1-passage-dev-small.original-bm25-1000.original-llama-1-7b-hf-neg1-top1000/checkpoint-1860 \
 --query_path ./datasets/msmarco-v2-passage/queries/dl-22-passage.queries-original.tsv \
 --run_path ./datasets/msmarco-v2-passage/runs/dl-22-passage.run-original-bm25-1000.txt \
 --index_path ./datasets/msmarco-v2-passage/lucene-index.msmarco-v2-passage-full.20220808.4d6d2a \
 --qrels_path ./datasets/msmarco-v2-passage/qrels/dl-22-passage.qrels-withDupes.txt \
 --output_dir ./output/ \
 --batch_size 32 \
---infer
+--infer --prompt binary
 
 python -u predict_measures.py \
---run_path ./datasets/msmarco-v2-passage/runs/dl-21-passage.run-original-bm25-1000.txt \
---qrels_path  ./output/dl-22-passage.original-bm25-1000.original-llama-1-7b-hf-ckpt-msmarco-v1-passage-dev-small.original-bm25-1000.original-llama-1-7b-hf-neg1-checkpoint-1860.k1000 \
---output_path ./output/dl-22-passage
+--run_path ./datasets/msmarco-v2-passage/runs/dl-22-passage.run-original-bm25-1000.txt \
+--qrels_path  ./output/dl-22-passage.original-bm25-1000.original-llama-1-7b-hf-ckpt-msmarco-v1-passage-dev-small.original-bm25-1000.original-llama-1-7b-hf-neg1-top1000-checkpoint-1860.k1000 \
+--output_path ./output/dl-22-passage \
+--n 10 100 200 500 1000
+
+# Llama-3-8B
+python -u judge_relevance.py \
+--model_name_or_path "meta-llama/Meta-Llama-3-8B"  \
+--token ${TOKEN} \
+--cache_dir ${CACHE_DIR} \
+--checkpoint_path ./checkpoint/ \
+--checkpoint_name msmarco-v1-passage-dev-small.original-bm25-1000.original-Meta-Llama-3-8B-neg2-top1000/checkpoint-5350 \
+--query_path ./datasets/msmarco-v2-passage/queries/dl-22-passage.queries-original.tsv \
+--run_path ./datasets/msmarco-v2-passage/runs/dl-22-passage.run-original-bm25-1000.txt \
+--index_path ./datasets/msmarco-v2-passage/lucene-index.msmarco-v2-passage-full.20220808.4d6d2a \
+--qrels_path ./datasets/msmarco-v2-passage/qrels/dl-22-passage.qrels-withDupes.txt \
+--output_dir ./output/ \
+--batch_size 32 \
+--k 1000 \
+--infer --prompt binary
+
+python -u predict_measures.py \
+--run_path ./datasets/msmarco-v2-passage/runs/dl-22-passage.run-original-bm25-1000.txt \
+--qrels_path  ./output/dl-22-passage.original-bm25-1000.original-Meta-Llama-3-8B-ckpt-msmarco-v1-passage-dev-small.original-bm25-1000.original-Meta-Llama-3-8B-neg2-top1000-checkpoint-5350.k1000 \
+--output_path ./output/dl-22-passage \
+--n 10 100 200 500 1000
+
+# Llama-3-8B-Instruct
+python -u judge_relevance.py \
+--model_name_or_path "meta-llama/Meta-Llama-3-8B-Instruct" \
+--token ${TOKEN} \
+--cache_dir ${CACHE_DIR} \
+--checkpoint_path ./checkpoint/ \
+--checkpoint_name msmarco-v1-passage-dev-small.original-bm25-1000.original-Meta-Llama-3-8B-Instruct-neg2-top1000/checkpoint-2675 \
+--query_path ./datasets/msmarco-v2-passage/queries/dl-22-passage.queries-original.tsv \
+--run_path ./datasets/msmarco-v2-passage/runs/dl-22-passage.run-original-bm25-1000.txt \
+--index_path ./datasets/msmarco-v2-passage/lucene-index.msmarco-v2-passage-full.20220808.4d6d2a \
+--qrels_path ./datasets/msmarco-v2-passage/qrels/dl-22-passage.qrels-withDupes.txt \
+--output_dir ./output/ \
+--batch_size 32 \
+--k 1000 \
+--infer --prompt binary
+
+python -u predict_measures.py \
+--run_path ./datasets/msmarco-v2-passage/runs/dl-22-passage.run-original-bm25-1000.txt \
+--qrels_path  ./output/dl-22-passage.original-bm25-1000.original-Meta-Llama-3-8B-Instruct-ckpt-msmarco-v1-passage-dev-small.original-bm25-1000.original-Meta-Llama-3-8B-Instruct-neg2-top1000-checkpoint-2675.k1000 \
+--output_path ./output/dl-22-passage \
+--n 10 100 200 500 1000
 ```
 
 #### Predicting the performance of ANCE on TREC-DL 19 
 ```bash
 python -u judge_relevance.py \
 --model_name_or_path ${LLAMA_7B_PATH} \
+--token ${TOKEN} \
+--cache_dir ${CACHE_DIR} \
 --checkpoint_path ./checkpoint/ \
---checkpoint_name msmarco-v1-passage-dev-small.original-bm25-1000.original-llama-1-7b-hf-neg1/checkpoint-2790 \
+--checkpoint_name msmarco-v1-passage-dev-small.original-bm25-1000.original-llama-1-7b-hf-neg1-top1000/checkpoint-2790 \
 --query_path ./datasets/msmarco-v1-passage/queries/dl-19-passage.queries-original.tsv \
 --run_path ./datasets/msmarco-v1-passage/runs/dl-19-passage.run-original-ance-msmarco-v1-passage-1000.txt \
 --index_path ./datasets/msmarco-v1-passage/lucene-index.msmarco-v1-passage-full.20221004.252b5e \
 --qrels_path ./datasets/msmarco-v1-passage/qrels/dl-19-passage.qrels.txt  \
 --output_dir ./output/ \
 --batch_size 32 \
---infer
+--infer --prompt binary
 
 python -u predict_measures.py \
 --run_path ./datasets/msmarco-v1-passage/runs/dl-19-passage.run-original-ance-msmarco-v1-passage-1000.txt \
 --qrels_path  ./output/dl-19-passage.original-ance-msmarco-v1-passage-1000.original-llama-1-7b-hf-ckpt-msmarco-v1-passage-dev-small.original-bm25-1000.original-llama-1-7b-hf-neg1-checkpoint-2790.k1000 \
---output_path ./output/dl-19-passage
+--output_path ./output/dl-19-passage \
+--n 10 100 200 500 1000
 ```
 #### Predicting the performance of ANCE on TREC-DL 20 
 ```bash
 python -u judge_relevance.py \
 --model_name_or_path ${LLAMA_7B_PATH} \
+--token ${TOKEN} \
+--cache_dir ${CACHE_DIR} \
 --checkpoint_path ./checkpoint/ \
---checkpoint_name msmarco-v1-passage-dev-small.original-bm25-1000.original-llama-1-7b-hf-neg1/checkpoint-2790 \
+--checkpoint_name msmarco-v1-passage-dev-small.original-bm25-1000.original-llama-1-7b-hf-neg1-top1000/checkpoint-2790 \
 --query_path ./datasets/msmarco-v1-passage/queries/dl-20-passage.queries-original.tsv \
 --run_path ./datasets/msmarco-v1-passage/runs/dl-20-passage.run-original-ance-msmarco-v1-passage-1000.txt \
 --index_path ./datasets/msmarco-v1-passage/lucene-index.msmarco-v1-passage-full.20221004.252b5e \
 --qrels_path ./datasets/msmarco-v1-passage/qrels/dl-20-passage.qrels.txt  \
 --output_dir ./output/ \
 --batch_size 32 \
---infer
+--infer --prompt binary
 
 python -u predict_measures.py \
 --run_path ./datasets/msmarco-v1-passage/runs/dl-20-passage.run-original-ance-msmarco-v1-passage-1000.txt \
 --qrels_path  ./output/dl-20-passage.original-ance-msmarco-v1-passage-1000.original-llama-1-7b-hf-ckpt-msmarco-v1-passage-dev-small.original-bm25-1000.original-llama-1-7b-hf-neg1-checkpoint-2790.k1000 \
---output_path ./output/dl-20-passage
+--output_path ./output/dl-20-passage \
+--n 10 100 200 500 1000
 ```
 
 ### 🛠️ 2.3 Fine-tuning LLaMA-7B, Llama-3-8B and Llama-3-8B-Instruct
