@@ -462,6 +462,17 @@ In the setting of in-context learning, we freeze the parameters of LLaMA.
 We randomly sample several human-labeled demonstration examples (each demonstration example is in the format of "<query, passage, relevant/irrelevant>") from the development set of MS MARCO V1 (the same set used for fine-tuning LLaMA in the previous part), and insert these sampled demonstration examples into the input of LLaMA-7B, Llama-3-8B and Llama-3-8B-Instruct with original weights. 
 We randomly sample two demonstration examples, where one example has a passage that is labeled as relevant (<query, passage, relevant>) while the other example has an irrelevant passage (<query, passage, irrelevant>); our preliminary experiments show that two demonstration examples work best and so we stick with this setting.
 
+#### Sampled demonstration examples
+
+Note that we sampled the following demonstration examples:
+```Question: avatar the last airbender game
+Passage: Avatar: The Last Airbender: The Video Game (known as Avatar: The Legend of Aang in Europe) is a video game based on the animated television series of the same name for Game Boy Advance, Microsoft Windows, Nintendo GameCube, Nintendo DS, PlayStation 2, PlayStation Portable, Wii, and Xbox.
+Output: Relevant
+Question: avatar the last airbender game
+Passage: Fans of Avatar: The Last Airbender have been feverishly looking forward to this weekend: Michael Dante DiMartino and Bryan Konietzko continue the mythology of their Airbender series with Nickelodeonâs The Legend of Korra, which premieres Saturday at 11 a.m.
+Output: Irrelevant
+```
+
 #### Predicting the performance of BM25 on TREC-DL 19 
 ```bash
 # LLaMA-7B
