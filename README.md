@@ -464,7 +464,7 @@ We randomly sample two demonstration examples, where one example has a passage t
 
 #### Sampled demonstration examples
 
-Note that we sampled the following demonstration examples:
+Note that we sampled and use the following demonstration examples for all few-shot prompting experiments:
 ```
 Question: avatar the last airbender game
 Passage: Avatar: The Last Airbender: The Video Game (known as Avatar: The Legend of Aang in Europe) is a video game based on the animated television series of the same name for Game Boy Advance, Microsoft Windows, Nintendo GameCube, Nintendo DS, PlayStation 2, PlayStation Portable, Wii, and Xbox.
