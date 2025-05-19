@@ -38,7 +38,7 @@ pip install -r requirements.txt
 ### 2.1 Prerequisite
 
 #### Download datasets 
-Please first download `dataset.zip` (containing queries, run files, qrels files and files containing the actual retrieval quality of queries) from [here](https://drive.google.com/file/d/1EO_9rp4m9g9geEENndOQlicqfJkjEsA0/view?usp=share_link), and then unzip it in the current directory.
+Please first download `dataset.zip` (containing queries, run files, qrels files and files containing the actual retrieval quality of queries) from [here](https://drive.google.com/file/d/1u_ahOv0KSKwMvO_0yaC7Cx6ky_duS08V/view?usp=share_link), and then unzip it in the current directory.
 
 Then, please download MS MARCO V1 and V2 passage ranking collections from [Pyserini](https://github.com/castorini/pyserini):
 ```bash
